@@ -10,6 +10,7 @@ namespace AwesomeBankSystem
     {
         User loggedInUser;
         List<User> userList = new List<User>();
+        CurrencyProvider currencyProvider = new CurrencyProvider();
         List<BankAccount> AllAccountList = new List<BankAccount>();
 
         //user logging in: menu
