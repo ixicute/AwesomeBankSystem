@@ -64,6 +64,18 @@ namespace AwesomeBankSystem
             return 0;
         }
 
+        public Currency GetCurrency(string name)
+        {
+            var tempCurrency = currencies.Find(x => x.Name.ToLower() == name.ToLower());
+            if (tempCurrency != null)
+            {
+                return tempCurrency;
+            }
+
+            Console.WriteLine($"Did not find any currency with name {name}");
+            return new Currency();
+        }
+
         public void PrintCurrencyValues()
         {
             foreach (var currency in currencies)
