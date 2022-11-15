@@ -12,6 +12,5 @@ namespace AwesomeBankSystem
         {
 
         }
-        public double Test { get; set; }
     }
 }
