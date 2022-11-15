@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AwesomeBankSystem
 {
-    public class BankAccount
+    public abstract class BankAccount
     {
         private double amount;
         private string accountNumber;
