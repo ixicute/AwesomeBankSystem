@@ -167,6 +167,7 @@ namespace AwesomeBankSystem
 
         public void OpenBankAccount()
         {
+            Console.WriteLine("Hej hej");
             Console.WriteLine("Write what you want the name of your account to be");
             string name = Console.ReadLine();
             Customer loggedInCustomer = (Customer)loggedInUser;
@@ -174,7 +175,10 @@ namespace AwesomeBankSystem
             loggedInCustomer.BankAccounts.Add(new BankAccount(0, bankAccountNumber, name));
             Console.WriteLine($"{name} has been created, bankaccount number is: {bankAccountNumber}");
         }
+        public void Test()
+        {
 
+        }
         public string GenerateBankAccountNumber()
         {
             Random random = new Random();
