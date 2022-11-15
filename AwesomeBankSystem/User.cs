@@ -22,7 +22,6 @@ namespace AwesomeBankSystem
         {
             get { return isAdmin; }
         }
-
         public string Password
         {
             get { return password; }
