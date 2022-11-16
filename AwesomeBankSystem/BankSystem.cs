@@ -171,33 +171,47 @@ namespace AwesomeBankSystem
         /// </summary>
         public void OpenBankAccount()
         {            
+            //needed variables.
             string accNumber = "";
             string type = "";
             int input = 0;
             double ammount = 0;
+            bool success = false;
 
-
-            Console.WriteLine("Which account type do you wish to open? (Press a number)\n" +
-                              "1. Savings Account\n" +
-                              "2. Normal Accoount\n" +
-                              "3. Cancel");
-            
-            int.TryParse(Console.ReadLine(), out input);
-            
+            //Loop menu for picking account-type.
             do
             {
+                Console.WriteLine("Which account type do you wish to open? (Press a number)\n" +
+                  "1. Savings Account\n" +
+                  "2. Normal Accoount\n" +
+                  "3. Cancel");
+
+                //Error handling
+                int.TryParse(Console.ReadLine(), out input);
+
                 switch (input)
                 {
                     case 1:
-
+                        //Runs method with a menu to ask user for ammount to input and return to variable.
                         ammount = AddMoney();
+
+                        //Runs method to generate a random account number for the user.
                         accNumber = GenerateBankAccountNumber();
 
-                        //Creating object of current user to add to the bank account list.
+                        //This code creates a temp of type Customer and casts contents of "LoggedInUser" to it.
                         Customer savingAcc = (Customer)loggedInUser;
 
+                        //The content of the above temp-type is then sent into a list inside of the Customer-class.
                         savingAcc.BankAccounts.Add(new SavingsAccount(ammount, accNumber, "Saving Account"));
+
+                        success = true;
                         break;
+                    /*
+                     * Code above (with lists) should be revisited. Should we instead add the list in this class (I.e BankSystem.cs)
+                     * If we choose to do that then the list created in banksystems.cs (row 13) should be referensed as follows:
+                     * AllAccountsList.Add(new SavingsAccount(ammount, accNumber, "Saving Account"));
+                     * 
+                     */
 
                     case 2:
 
@@ -207,11 +221,13 @@ namespace AwesomeBankSystem
                         Customer baseAcc = (Customer)loggedInUser;
 
                         baseAcc.BankAccounts.Add(new SavingsAccount(ammount, accNumber, "Normal Account"));
+                        success = true;
                         break;
 
                     case 3:
 
                         Console.WriteLine("Exiting menu - No accounts were created.");
+                        input = 1;
                         break;
 
                     default:
@@ -223,10 +239,17 @@ namespace AwesomeBankSystem
 
             } while (input != 1 && input != 2);
 
-            type = input == 1 ? "Saving Account" : "Normal Account";
-            Console.WriteLine($"A {type} has been created\n" +
-                              $"bankaccount number is: {accNumber}\n" +
-                              $"Current Balance is: {ammount}");
+            //If user reaches case 1 or case 2 (hence creating an account)
+            if (success)
+            {
+                //If user pressed 1 then type is "Saving Account"
+                //otherwise (aka if 2) then its "normal Account".
+                type = input == 1 ? "Saving Account" : "Normal Account";
+
+                Console.WriteLine($"A {type} has been created\n" +
+                                  $"bankaccount number is: {accNumber}\n" +
+                                  $"Current Balance is: {ammount}");
+            }
         }
 
         /// <summary>
