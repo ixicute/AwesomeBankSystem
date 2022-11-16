@@ -195,20 +195,36 @@ namespace AwesomeBankSystem
             }
             return bankaccount.Trim('-');
         }
-        public double NewBankLoan()
+
+        public void NewBankLoan()
         {
-            double totalBankAmount = 0; 
+            double totalBankAmount = 0;
+            string theEnd;
 
-            Console.WriteLine("Enter the amount of money you want to loan");
-            double inputAmount = Convert.ToDouble(Console.ReadLine());
-
-            foreach (var item in AllAccountList) 
+            do
             {
-                totalBankAmount += item.Amount; 
-            }
+                Console.WriteLine("Enter the amount of money you want to loan");
+                double inputAmount = Convert.ToDouble(Console.ReadLine());
 
-            double totalLoanAmount = (totalBankAmount * 5.0);
-            return totalLoanAmount;
+                foreach (var item in AllAccountList)
+                {
+                    totalBankAmount += item.Amount;
+                }
+
+                double totalLoanAmount = (totalBankAmount * 5.0);
+
+                if (inputAmount <= totalLoanAmount)
+                {
+                    Console.WriteLine($"You can loan the amount {inputAmount}");
+                    break;
+                }
+                else 
+                {
+                    Console.WriteLine($"You can't loan the amount {inputAmount}.");
+                    Console.WriteLine("Do you want to enter another amount: Yes or No");
+                    theEnd = Console.ReadLine();
+                }
+            } while (theEnd.ToLower()!="no");
         }
     }
 }
