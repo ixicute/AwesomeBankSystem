@@ -289,7 +289,9 @@ namespace AwesomeBankSystem
             }
             return bankaccount.Trim('-');
         }
-
+        /// <summary>
+        /// Checking and adding up all amounts then approves loan OR user can try entering another loan amount  
+        /// </summary>
         public void NewBankLoan()
         {
             double totalBankAmount = 0;
@@ -299,39 +301,35 @@ namespace AwesomeBankSystem
             {
                 Console.WriteLine("Enter the amount of money you want to loan");
                 double inputAmount = Convert.ToDouble(Console.ReadLine());
+                Customer savingAcc = (Customer)loggedInUser;
 
-                foreach (var item in AllAccountList)  //söker igenom listan efter summan
+                foreach (var item in savingAcc.BankAccounts)  
                 {
                     totalBankAmount += item.Amount;
                 }
 
-                double totalLoanAmount = (totalBankAmount * 5.0);  //räknar totalsumman utifrån personens befintliga pengar
+                double totalLoanAmount = (totalBankAmount * 5.0);  
 
-                if (inputAmount <= totalLoanAmount)  //om input är mindre än summan x 5, ja till lån
+                if (inputAmount <= totalLoanAmount)  
                 {
-                    Console.WriteLine($"You can loan the amount {inputAmount} with the interestrate of 0,1 %.");
-                    Console.WriteLine($"Total amount of the loan is {amountWithRate}");
+                    Console.WriteLine($"You can loan the amount {inputAmount} with the interestrate of 10 %.");
+                    Console.WriteLine($"Total amount of the loan is {InterestRate(inputAmount)}.");
                     break;
                 }
                 else 
                 {
-                    Console.WriteLine($"You can't loan the amount {inputAmount}."); //annars nej, vill personen prova igen
+                    Console.WriteLine($"You can't loan the amount {inputAmount}."); 
                     Console.WriteLine("Do you want to enter another amount: Yes or No");
                     theEnd = Console.ReadLine();
                 }
             } while (theEnd.ToLower()!="no");
         }
-
-        public double InterestRate() //se hela lånesumman på lånet (med räntan 10%) 
+        /// <summary>
+        /// formula for interestrate, returns the hole loan including interest
+        /// </summary>
+        public double InterestRate(double inputAmount) 
         {
-            double interestRate = 0;
-            double amountWithRate;
-
-            Console.WriteLine("Enter the amount of money you want to loan");
-            double inputAmount = Convert.ToDouble(Console.ReadLine());
-
-            interestRate = (inputAmount / 100.0) * 10.0;
-            amountWithRate = interestRate + inputAmount;
+            double amountWithRate = (inputAmount / 100.0) * 10.0 + inputAmount;
             return amountWithRate;
         }
     } 
