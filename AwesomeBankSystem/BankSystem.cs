@@ -10,7 +10,7 @@ namespace AwesomeBankSystem
     {
         User loggedInUser;
         List<User> userList = new List<User>();
-
+        List<BankAccount> AllAccountsList = new List<BankAccount>();
         //user logging in: menu
         public void Run()
         {
@@ -105,9 +105,9 @@ namespace AwesomeBankSystem
                     case "pb":
                         PrintBankAccounts();
                         break;
-                    //case "ob":
-                    //    OpenBankAccount();
-                        //break;
+                    case "ob":
+                        OpenBankAccount();
+                        break;
                     case "exit":
                         SignOut();
                         break;
@@ -165,19 +165,88 @@ namespace AwesomeBankSystem
 
         }
 
-        //Needs to be resolved. Allow user to choose account type (Savings or base account)
-        
-        //public void OpenBankAccount()
-        //{
-        //    Console.WriteLine("Write what you want the name of your account to be");
-        //    string name = Console.ReadLine();
-        //    Customer loggedInCustomer = (Customer)loggedInUser;
-        //    string bankAccountNumber = GenerateBankAccountNumber();
-        //    loggedInCustomer.BankAccounts.Add(new BankAccount(0, bankAccountNumber, name));
-        //    Console.WriteLine($"{name} has been created, bankaccount number is: {bankAccountNumber}");
-        //}
-        
+        //TODO: Add ability to pick currency for the account
+        public void OpenBankAccount()
+        {            
+            string accNumber = "";
+            string type = "";
+            int input = 0;
+            double ammount = 0;
 
+
+            Console.WriteLine("Which account type do you wish to open? (Press a number)\n" +
+                              "1. Savings Account\n" +
+                              "2. Normal Accoount\n" +
+                              "3. Cancel");
+            
+            int.TryParse(Console.ReadLine(), out input);
+            
+            do
+            {
+                switch (input)
+                {
+                    case 1:
+
+                        ammount = AddMoney();
+                        accNumber = GenerateBankAccountNumber();
+
+                        //Creating object of current user to add to the bank account list.
+                        Customer savingAcc = (Customer)loggedInUser;
+
+                        savingAcc.BankAccounts.Add(new SavingsAccount(ammount, accNumber, "Saving Account"));
+                        break;
+
+                    case 2:
+
+                        ammount = AddMoney();
+                        accNumber = GenerateBankAccountNumber();
+
+                        Customer baseAcc = (Customer)loggedInUser;
+
+                        baseAcc.BankAccounts.Add(new SavingsAccount(ammount, accNumber, "Normal Account"));
+                        break;
+
+                    case 3:
+
+                        Console.WriteLine("Exiting menu - No accounts were created.");
+                        break;
+
+                    default:
+
+                        Console.Clear();
+                        Console.WriteLine("You must choose an option from the menu. Try Again.");
+                        break;
+                }
+
+            } while (input != 1 && input != 2);
+
+            type = input == 1 ? "Saving Account" : "Normal Account";
+            Console.WriteLine($"A {type} has been created\n" +
+                              $"bankaccount number is: {accNumber}\n" +
+                              $"Current Balance is: {ammount}");
+        }
+
+        /// <summary>
+        /// Lets user specify ammount of money to add and returns it as a double-variable.
+        /// </summary>
+        private double AddMoney()
+        {
+            double result;
+            Console.WriteLine("How much money do you want to add to your account? ");
+            do
+            {
+                double.TryParse(Console.ReadLine(), out result);
+
+                //If user enters a number less than 0 it will not be approved.
+                if (result < 0)
+                {
+                    Console.WriteLine("The ammount can not be less than 0, try again!");
+                }
+
+            } while (result < 0);
+
+            return result;
+        }
         public string GenerateBankAccountNumber()
         {
             Random random = new Random();
