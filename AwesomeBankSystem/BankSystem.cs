@@ -11,6 +11,7 @@ namespace AwesomeBankSystem
         User loggedInUser;
         List<User> userList = new List<User>();
         List<BankAccount> AllAccountsList = new List<BankAccount>();
+
         //user logging in: menu
         public void Run()
         {
@@ -165,7 +166,9 @@ namespace AwesomeBankSystem
 
         }
 
-        //TODO: Add ability to pick currency for the account
+        /// <summary>
+        /// Used to open a new bank account (normal or for savings) with a generated account number.
+        /// </summary>
         public void OpenBankAccount()
         {            
             string accNumber = "";
