@@ -206,25 +206,39 @@ namespace AwesomeBankSystem
                 Console.WriteLine("Enter the amount of money you want to loan");
                 double inputAmount = Convert.ToDouble(Console.ReadLine());
 
-                foreach (var item in AllAccountList)
+                foreach (var item in AllAccountList)  //söker igenom listan efter summan
                 {
                     totalBankAmount += item.Amount;
                 }
 
-                double totalLoanAmount = (totalBankAmount * 5.0);
+                double totalLoanAmount = (totalBankAmount * 5.0);  //räknar totalsumman utifrån personens befintliga pengar
 
-                if (inputAmount <= totalLoanAmount)
+                if (inputAmount <= totalLoanAmount)  //om input är mindre än summan x 5, ja till lån
                 {
-                    Console.WriteLine($"You can loan the amount {inputAmount}");
+                    Console.WriteLine($"You can loan the amount {inputAmount} with the interestrate of 0,1 %.");
+                    Console.WriteLine($"Total amount of the loan is {amountWithRate}");
                     break;
                 }
                 else 
                 {
-                    Console.WriteLine($"You can't loan the amount {inputAmount}.");
+                    Console.WriteLine($"You can't loan the amount {inputAmount}."); //annars nej, vill personen prova igen
                     Console.WriteLine("Do you want to enter another amount: Yes or No");
                     theEnd = Console.ReadLine();
                 }
             } while (theEnd.ToLower()!="no");
-        } 
-    }
+        }
+
+        public double InterestRate() //se hela lånesumman på lånet (med räntan 10%) 
+        {
+            double interestRate = 0;
+            double amountWithRate;
+
+            Console.WriteLine("Enter the amount of money you want to loan");
+            double inputAmount = Convert.ToDouble(Console.ReadLine());
+
+            interestRate = (inputAmount / 100.0) * 10.0;
+            amountWithRate = interestRate + inputAmount;
+            return amountWithRate;
+        }
+    } 
 }
