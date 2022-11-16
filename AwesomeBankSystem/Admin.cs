@@ -8,7 +8,6 @@ namespace AwesomeBankSystem
 {
     internal class Admin : User
     {
-
         public Admin(string name, string password, bool isAdmin) : base(name, password, isAdmin)
         {
 

@@ -10,8 +10,10 @@ namespace AwesomeBankSystem
     {
         User loggedInUser;
         List<User> userList = new List<User>();
-        List<BankAccount> AllAccountsList = new List<BankAccount>();
-
+        
+        CurrencyProvider currencyProvider = new CurrencyProvider();
+        List<BankAccount> AllAccountList = new List<BankAccount>();
+        
         //user logging in: menu
         public void Run()
         {
@@ -165,7 +167,7 @@ namespace AwesomeBankSystem
             }
 
         }
-
+        
         /// <summary>
         /// Used to open a new bank account (normal or for savings) with a generated account number.
         /// </summary>
@@ -288,5 +290,35 @@ namespace AwesomeBankSystem
             return bankaccount.Trim('-');
         }
 
+        public void NewBankLoan()
+        {
+            double totalBankAmount = 0;
+            string theEnd;
+
+            do
+            {
+                Console.WriteLine("Enter the amount of money you want to loan");
+                double inputAmount = Convert.ToDouble(Console.ReadLine());
+
+                foreach (var item in AllAccountList)
+                {
+                    totalBankAmount += item.Amount;
+                }
+
+                double totalLoanAmount = (totalBankAmount * 5.0);
+
+                if (inputAmount <= totalLoanAmount)
+                {
+                    Console.WriteLine($"You can loan the amount {inputAmount}");
+                    break;
+                }
+                else 
+                {
+                    Console.WriteLine($"You can't loan the amount {inputAmount}.");
+                    Console.WriteLine("Do you want to enter another amount: Yes or No");
+                    theEnd = Console.ReadLine();
+                }
+            } while (theEnd.ToLower()!="no");
+        } 
     }
 }
