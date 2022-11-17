@@ -11,13 +11,14 @@ namespace AwesomeBankSystem
         private double amount;
         private string accountNumber;
         private string name;
+        private Currency currency;
 
-
-        public BankAccount(double amount, string accountNumber, string name)
+        public BankAccount(string name, Currency currency, double amount = 0)
         {
-            this.amount = amount;
-            this.accountNumber = accountNumber;
             this.name = name;
+            this.currency = currency;
+            this.amount = amount;
+            this.accountNumber = GenerateBankAccountNumber();
         }
         public string AccountNumber
         {
@@ -34,6 +35,27 @@ namespace AwesomeBankSystem
         {
             get { return name; }
             set { name = value; }
+        }
+
+        public Currency Currency
+        {
+            get { return currency; }
+            set { currency = value; }
+        }
+
+        public string GenerateBankAccountNumber()
+        {
+            Random random = new Random();
+            string bankaccount = "";
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    bankaccount = bankaccount + random.Next(0, 10).ToString();
+                }
+                bankaccount = bankaccount + "-";
+            }
+            return bankaccount.Trim('-');
         }
     }
 }

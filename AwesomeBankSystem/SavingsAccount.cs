@@ -8,9 +8,8 @@ namespace AwesomeBankSystem
 {
     internal class SavingsAccount : BankAccount
     {
-        public SavingsAccount(double amount, string accountNumber, string name) : base(amount, accountNumber, name)
+        public SavingsAccount(string name, Currency currency, double amount = 0) : base(name, currency, amount)
         {
-
         }
     }
 }
