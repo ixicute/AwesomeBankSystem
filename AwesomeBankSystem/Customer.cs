@@ -11,7 +11,6 @@ namespace AwesomeBankSystem
         private List<BankAccount> bankAccounts = new List<BankAccount>();
         public Customer(string name, string password, bool isAdmin) : base(name, password, isAdmin)
         {
-
         }
 
         public List<BankAccount> BankAccounts

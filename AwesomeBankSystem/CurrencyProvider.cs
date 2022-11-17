@@ -78,9 +78,11 @@ namespace AwesomeBankSystem
 
         public void PrintCurrencyValues()
         {
+            int counter = 1;
             foreach (var currency in currencies)
             {
-                Console.WriteLine($"{currency.Name} has value: {currency.Value}");
+                Console.WriteLine($"Indexnumber {counter}: {currency.Name} has value: {currency.Value}");
+                counter++;
             }
         }
     }

@@ -163,7 +163,7 @@ namespace AwesomeBankSystem
             }
             foreach (BankAccount bankAccount in loggedInCustomer.BankAccounts)
             {
-                Console.WriteLine($"Account name: {bankAccount.Name} Account number: {bankAccount.AccountNumber} Amount: {bankAccount.Amount}");
+                Console.WriteLine($"Account name: {bankAccount.Name} Account number: {bankAccount.AccountNumber} Amount: {bankAccount.Amount} {bankAccount.Currency.Name}");
             }
 
         }
@@ -179,6 +179,7 @@ namespace AwesomeBankSystem
             int input = 0;
             double ammount = 0;
             bool success = false;
+            Currency currency = new Currency();
 
             //Loop menu for picking account-type.
             do
@@ -197,14 +198,12 @@ namespace AwesomeBankSystem
                         //Runs method with a menu to ask user for ammount to input and return to variable.
                         ammount = AddMoney();
 
-                        //Runs method to generate a random account number for the user.
-                        accNumber = GenerateBankAccountNumber();
-
                         //This code creates a temp of type Customer and casts contents of "LoggedInUser" to it.
                         Customer savingAcc = (Customer)loggedInUser;
 
+                        currency = PickCurrency();
                         //The content of the above temp-type is then sent into a list inside of the Customer-class.
-                        savingAcc.BankAccounts.Add(new SavingsAccount(ammount, accNumber, "Saving Account"));
+                        savingAcc.BankAccounts.Add(new SavingsAccount("Saving Account", currency, ammount));
 
                         success = true;
                         break;
@@ -218,11 +217,12 @@ namespace AwesomeBankSystem
                     case 2:
 
                         ammount = AddMoney();
-                        accNumber = GenerateBankAccountNumber();
 
                         Customer baseAcc = (Customer)loggedInUser;
 
-                        baseAcc.BankAccounts.Add(new SavingsAccount(ammount, accNumber, "Normal Account"));
+                        currency = PickCurrency();
+                        
+                        baseAcc.BankAccounts.Add(new SavingsAccount("Normal Account", currency, ammount));
                         success = true;
                         break;
 
@@ -249,7 +249,7 @@ namespace AwesomeBankSystem
                 type = input == 1 ? "Saving Account" : "Normal Account";
 
                 Console.WriteLine($"A {type} has been created\n" +
-                                  $"bankaccount number is: {accNumber}\n" +
+                                  $"bankaccount number is: {accNumber} with currency {currency.Name}\n" +
                                   $"Current Balance is: {ammount}");
             }
         }
@@ -275,19 +275,13 @@ namespace AwesomeBankSystem
 
             return result;
         }
-        public string GenerateBankAccountNumber()
+  
+        public Currency PickCurrency()
         {
-            Random random = new Random();
-            string bankaccount = "";
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    bankaccount = bankaccount + random.Next(0, 10).ToString();
-                }
-                bankaccount = bankaccount + "-";
-            }
-            return bankaccount.Trim('-');
+            currencyProvider.PrintCurrencyValues();
+            Console.WriteLine("Write the indexnumbr of the Currency you want!");
+            int choice = int.Parse(Console.ReadLine());
+            return currencyProvider.Currencies[choice-1];
         }
         /// <summary>
         /// Checking and adding up all amounts then approves loan OR user can try entering another loan amount  
