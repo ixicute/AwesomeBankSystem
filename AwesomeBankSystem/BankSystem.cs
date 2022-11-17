@@ -163,7 +163,7 @@ namespace AwesomeBankSystem
             }
             foreach (BankAccount bankAccount in loggedInCustomer.BankAccounts)
             {
-                Console.WriteLine($"Account name: {bankAccount.Name} Account number: {bankAccount.AccountNumber} Amount: {bankAccount.Amount} {bankAccount.Currency.Name}");
+                Console.WriteLine($"Account name: {bankAccount.Name} Account number: {bankAccount.AccountNumber} Amount: {bankAccount.Amount} {bankAccount.Currency}");
             }
 
         }
@@ -176,11 +176,13 @@ namespace AwesomeBankSystem
             //needed variables.
             string accountName = "";
             string type = "";
+            int CurrencyInput = 0;
             int input = 0;
             double ammount = 0;
             bool success = false;
-            Currency currency = new Currency();
-
+            //Currency currency = new Currency();
+            string currency = "SEK";
+            Customer loggedInCustomer = (Customer)loggedInUser;
             //Loop menu for picking account-type.
             do
             {
@@ -195,37 +197,104 @@ namespace AwesomeBankSystem
                 switch (input)
                 {
                     case 1:
+                        //Ask user for account name + error handling.
+                        Console.WriteLine("Choose a name for your new account: ");
+                        accountName = Console.ReadLine();
+
+                        if (string.IsNullOrEmpty(accountName) || string.IsNullOrWhiteSpace(accountName))
+                        {
+                            accountName = "Saving Account";
+                        }
+
+                        Console.WriteLine("Alla konton har Svenska krona (SEK) som standard valuta.\n" +
+                                          "Tryck 1 och ENTER om du vill välja ett annat valuta: ");
+                        _ = int.TryParse(Console.ReadLine(), out CurrencyInput);
+                        
+                        if (CurrencyInput == 1)
+                        {
+                            Console.WriteLine("Välj en valuta från listan:\n" +
+                                              "1. USD\n" +
+                                              "2. EURO\n" +
+                                              "3. Fortsätt med SEK");
+                            int temp;
+                            bool check = int.TryParse(Console.ReadLine(), out temp);
+                            temp = check ? temp : 3;
+
+                            if(temp == 1)
+                            {
+                                currency = "USD";
+                            }
+                            else if(temp == 2)
+                            {
+                                currency = "EURO";
+                            }
+                            else
+                            {
+                                currency = "SEK";
+                            }
+                        }
+                        else
+                        {
+                            currency = "SEK";
+                        }
+
                         //Runs method with a menu to ask user for ammount to input and return to variable.
-                        accountName = PickNameOfBankAccount();
-                        ammount = AddMoney();
+                        ammount = AddMoney(currency);
 
-                        //This code creates a temp of type Customer and casts contents of "LoggedInUser" to it.
-                        Customer savingAcc = (Customer)loggedInUser;
+                        //This code creates a temp of type Customer and casts contents of "LoggedInUser" to it.                        
 
-                        currency = PickCurrency();
                         //The content of the above temp-type is then sent into a list inside of the Customer-class.
-                        savingAcc.BankAccounts.Add(new SavingsAccount(accountName, currency, ammount));
+                        loggedInCustomer.BankAccounts.Add(new SavingsAccount(accountName, currency, ammount));
 
                         success = true;
                         break;
-                    /*
-                     * Code above (with lists) should be revisited. Should we instead add the list in this class (I.e BankSystem.cs)
-                     * If we choose to do that then the list created in banksystems.cs (row 13) should be referensed as follows:
-                     * AllAccountsList.Add(new SavingsAccount(ammount, accNumber, "Saving Account"));
-                     * 
-                     */
 
                     case 2:
+                        //Ask user for account name + error handling.
+                        Console.WriteLine("Choose a name for your new account: ");
+                        accountName = Console.ReadLine();
 
-                        accountName = PickNameOfBankAccount();
+                        if (string.IsNullOrEmpty(accountName) || string.IsNullOrWhiteSpace(accountName))
+                        {
+                            accountName = "Normal Account";
+                        }
 
-                        ammount = AddMoney();
+                        Console.WriteLine("Alla konton har Svenska krona (SEK) som standard valuta.\n" +
+                                          "Tryck 1 och ENTER om du vill välja ett annat valuta: ");
+                        _ = int.TryParse(Console.ReadLine(), out CurrencyInput);
 
-                        Customer baseAcc = (Customer)loggedInUser;
+                        if (CurrencyInput == 1)
+                        {
+                            Console.WriteLine("Välj en valuta från listan:\n" +
+                                              "1. USD\n" +
+                                              "2. EURO\n" +
+                                              "3. Fortsätt med SEK");
+                            int temp;
+                            bool check = int.TryParse(Console.ReadLine(), out temp);
+                            temp = check ? temp : 3;
 
-                        currency = PickCurrency();
-                        
-                        baseAcc.BankAccounts.Add(new SavingsAccount(accountName, currency, ammount));
+                            if (temp == 1)
+                            {
+                                currency = "USD";
+                            }
+                            else if (temp == 2)
+                            {
+                                currency = "EURO";
+                            }
+                            else
+                            {
+                                currency = "SEK";
+                            }
+                        }
+                        else
+                        {
+                            currency = "SEK";
+                        }
+
+                        //Runs method with a menu to ask user for ammount to input and return to variable.
+                        ammount = AddMoney(currency);
+
+                        loggedInCustomer.BankAccounts.Add(new BaseAccount(accountName, currency, ammount));
                         success = true;
                         break;
 
@@ -253,7 +322,7 @@ namespace AwesomeBankSystem
                 Customer customer = (Customer)loggedInUser;
 
                 Console.WriteLine($"A {type} has been created with the name {accountName}\n" +
-                                  $"bankaccount number is: {customer.BankAccounts.First(x => x.Name == accountName).AccountNumber} with currency {currency.Name}\n" +
+                                  $"bankaccount number is: {customer.BankAccounts.First(x => x.Name == accountName).AccountNumber} with currency {currency}\n" +
                                   $"Current Balance is: {ammount}");
             }
         }
@@ -261,10 +330,10 @@ namespace AwesomeBankSystem
         /// <summary>
         /// Lets user specify ammount of money to add and returns it as a double-variable.
         /// </summary>
-        private double AddMoney()
+        private double AddMoney(string currency)
         {
             double result;
-            Console.WriteLine("How much money do you want to add to your account? ");
+            Console.WriteLine($"How much money do you want to add to your account in {currency}?");
             do
             {
                 double.TryParse(Console.ReadLine(), out result);
@@ -286,6 +355,38 @@ namespace AwesomeBankSystem
             Console.WriteLine("Write the indexnumbr of the Currency you want!");
             int choice = int.Parse(Console.ReadLine());
             return currencyProvider.Currencies[choice-1];
+        }
+
+        /// <summary>
+        /// Method used to exchange money to different values before transferring them.
+        /// </summary>
+        /// <returns></returns>
+        public double ValueExchange()
+        {
+            double amount = 0;
+            int userInput = 0;
+            Console.WriteLine("Welcome to our exchange system! Pick an option from the menu:");
+            Console.WriteLine("1. I have SEK and want to exchange to USD\n" +
+                              "2. I have SEK and want to exchange to EURO\n" +
+                              "3. I have EURO and want to exchange to SEK\n" +
+                              "4. I have USD and wich to exchange to SEK");
+            bool check = int.TryParse(Console.ReadLine(), out userInput);
+            userInput = check ? 0 : userInput;
+
+            switch (userInput)
+            {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                default:
+                    break;
+            }
+            return amount;
         }
 
         public string PickNameOfBankAccount()
