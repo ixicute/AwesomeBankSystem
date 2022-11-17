@@ -111,6 +111,9 @@ namespace AwesomeBankSystem
                     case "ob":
                         OpenBankAccount();
                         break;
+                    case "test":
+                        MoneyToSelf();
+                        break;
                     case "exit":
                         SignOut();
                         break;
@@ -340,19 +343,63 @@ namespace AwesomeBankSystem
 
             return result;
         }
-  
-        public Currency PickCurrency()
+
+        //Can't get here if you only have one account!!!
+        public void MoneyToSelf()
         {
-            currencyProvider.PrintCurrencyValues();
-            Console.WriteLine("Write the indexnumbr of the Currency you want!");
-            int choice = int.Parse(Console.ReadLine());
-            return currencyProvider.Currencies[choice-1];
+            Customer loggedInCustomer = (Customer)loggedInUser;
+            int userInput = 0;
+            string sendToAcc = "";
+            string sendFromAcc = "";
+            double amountToSend;
+
+            foreach (var myAcc in loggedInCustomer.BankAccounts)
+            {
+                Console.WriteLine($"Account: [{myAcc.Name} - {myAcc.AccountNumber} has {myAcc.Amount} {myAcc.Currency}]");
+            }
+
+            Console.WriteLine("Write the name of the account that you want to send money from: ");
+            sendFromAcc = Console.ReadLine().ToLower();
+            var sendFrom = loggedInCustomer.BankAccounts.Find(x => x.Name.ToLower() == sendFromAcc);
+
+            foreach (var myAcc in loggedInCustomer.BankAccounts)
+            {
+                Console.WriteLine($"Account: [{myAcc.Name} - {myAcc.AccountNumber} has {myAcc.Amount} {myAcc.Currency}]");
+            }
+
+            Console.WriteLine("Write the name of the account you want to send money to: ");
+            sendToAcc = Console.ReadLine().ToLower();
+            var sendTo = loggedInCustomer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
+
+            Console.WriteLine($"How much money in {sendFrom.Currency} do you want to send?");
+            bool check = double.TryParse(Console.ReadLine(), out amountToSend);
+            if (!check)
+            {
+                amountToSend = 0;
+            }
+
+            Send(sendFrom, sendTo, amountToSend);
+        }
+
+        public void Send(BankAccount from, BankAccount to, double amount)
+        {
+            Customer loggedInCustomer = (Customer)loggedInUser;
+            int indexNum = 0;
+            for (int i = 0; i < loggedInCustomer.BankAccounts.Count; i++)
+            {
+                if (loggedInCustomer.BankAccounts[i].AccountNumber == to.AccountNumber)
+                {
+                    loggedInCustomer.BankAccounts[i].Amount -= amount;
+                    indexNum = i;
+                }
+            }
+
+            Console.WriteLine($"New balance is: {loggedInCustomer.BankAccounts[indexNum].Amount}");
         }
 
         /// <summary>
         /// Method used to exchange money to different values before transferring them.
         /// </summary>
-        /// <returns></returns>
         public double ValueExchange()
         {
             double amount = 0;
