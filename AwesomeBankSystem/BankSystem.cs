@@ -207,7 +207,7 @@ namespace AwesomeBankSystem
                         }
 
                         Console.WriteLine("Alla konton har Svenska krona (SEK) som standard valuta.\n" +
-                                          "Tryck 1 och ENTER om du vill välja ett annat valuta: ");
+                                          "Tryck 1 och ENTER om du vill välja ett annat valuta (Annars tryck bara ENTER): ");
                         _ = int.TryParse(Console.ReadLine(), out CurrencyInput);
                         
                         if (CurrencyInput == 1)
@@ -281,14 +281,6 @@ namespace AwesomeBankSystem
                             {
                                 currency = "EURO";
                             }
-                            else
-                            {
-                                currency = "SEK";
-                            }
-                        }
-                        else
-                        {
-                            currency = "SEK";
                         }
 
                         //Runs method with a menu to ask user for ammount to input and return to variable.
@@ -323,7 +315,7 @@ namespace AwesomeBankSystem
 
                 Console.WriteLine($"A {type} has been created with the name {accountName}\n" +
                                   $"bankaccount number is: {customer.BankAccounts.First(x => x.Name == accountName).AccountNumber} with currency {currency}\n" +
-                                  $"Current Balance is: {ammount}");
+                                  $"Current Balance is: {ammount} {currency}");
             }
         }
 
@@ -389,11 +381,6 @@ namespace AwesomeBankSystem
             return amount;
         }
 
-        public string PickNameOfBankAccount()
-        {
-            Console.WriteLine("Write what u want to call your bankaccount:");
-            return Console.ReadLine();
-        }
         /// <summary>
         /// Checking and adding up all amounts then approves loan OR user can try entering another loan amount  
         /// </summary>
