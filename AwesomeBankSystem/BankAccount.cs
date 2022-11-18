@@ -11,12 +11,12 @@ namespace AwesomeBankSystem
         private double amount;
         private string accountNumber;
         private string name;
-        private Currency currency;
+        //private Currency currency;
 
-        public BankAccount(string name, Currency currency, double amount = 0)
+        public BankAccount(string name, string currency = "SEK", double amount = 0)
         {
             this.name = name;
-            this.currency = currency;
+            this.Currency = currency.ToUpper();
             this.amount = amount;
             this.accountNumber = GenerateBankAccountNumber();
         }
@@ -37,11 +37,13 @@ namespace AwesomeBankSystem
             set { name = value; }
         }
 
-        public Currency Currency
-        {
-            get { return currency; }
-            set { currency = value; }
-        }
+        public string Currency { get; set; }
+
+        //public Currency Currency
+        //{
+        //    get { return currency; }
+        //    set { currency = value; }
+        //}
 
         public string GenerateBankAccountNumber()
         {
