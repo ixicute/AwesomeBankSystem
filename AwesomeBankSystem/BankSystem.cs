@@ -9,6 +9,7 @@ namespace AwesomeBankSystem
     internal class BankSystem
     {
         User loggedInUser;
+        Customer customer;
         List<User> userList = new List<User>();
         
         CurrencyProvider currencyProvider = new CurrencyProvider();
@@ -128,6 +129,9 @@ namespace AwesomeBankSystem
         {
             userList.Add(new Admin("admin", "password", true));
             userList.Add(new Customer("customer", "password", false));
+            userList.Add(new Customer("Aldor", "password", false));
+            customer = (Customer)userList.Find(x => x.UserName == "Aldor");
+            customer.BankAccounts.Add(new BaseAccount("Baskonto", "SEK", 1000));
         }
 
         public void AddCustomer()
@@ -359,7 +363,9 @@ namespace AwesomeBankSystem
             }
 
             Console.WriteLine("Write the name of the account that you want to send money from: ");
+
             sendFromAcc = Console.ReadLine().ToLower();
+            
             var sendFrom = loggedInCustomer.BankAccounts.Find(x => x.Name.ToLower() == sendFromAcc);
 
             foreach (var myAcc in loggedInCustomer.BankAccounts)
@@ -368,7 +374,9 @@ namespace AwesomeBankSystem
             }
 
             Console.WriteLine("Write the name of the account you want to send money to: ");
+            
             sendToAcc = Console.ReadLine().ToLower();
+            
             var sendTo = loggedInCustomer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
 
             Console.WriteLine($"How much money in {sendFrom.Currency} do you want to send?");
@@ -385,6 +393,7 @@ namespace AwesomeBankSystem
         {
             Customer loggedInCustomer = (Customer)loggedInUser;
             int indexNum = 0;
+            
             for (int i = 0; i < loggedInCustomer.BankAccounts.Count; i++)
             {
                 if (loggedInCustomer.BankAccounts[i].AccountNumber == to.AccountNumber)
@@ -394,7 +403,7 @@ namespace AwesomeBankSystem
                 }
             }
 
-            Console.WriteLine($"New balance is: {loggedInCustomer.BankAccounts[indexNum].Amount}");
+            Console.WriteLine($"New balance is: {loggedInCustomer.BankAccounts[indexNum].Amount} {loggedInCustomer.BankAccounts[indexNum].Currency}");
         }
 
         /// <summary>
