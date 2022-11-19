@@ -11,8 +11,8 @@ namespace AwesomeBankSystem
         User loggedInUser;
         Customer customer;
         List<User> userList = new List<User>();
-        
-        CurrencyProvider currencyProvider = new CurrencyProvider();
+
+        CurrencyExchange changeRate = new CurrencyExchange();
         List<BankAccount> AllAccountList = new List<BankAccount>();
         
         //user logging in: menu
@@ -239,10 +239,6 @@ namespace AwesomeBankSystem
                             else if(temp == 2)
                             {
                                 currency = "EURO";
-                            }
-                            else
-                            {
-                                currency = "SEK";
                             }
                         }
                         else
@@ -481,7 +477,14 @@ namespace AwesomeBankSystem
             Customer fromCustomer = (Customer)userList.Find(x => x.UserName == from.Name);
             Customer toCustomer = (Customer)userList.Find(x => x.UserName == to.Name);
             int indexNum = 0;
-            
+            double currencyChecked = amount;
+
+            //If currencies are not equal
+            if (from.Currency != to.Currency)
+            {
+                currencyChecked = changeRate.ExchangeCurrency(from, to, amount);
+            }
+
             //Money is withdrawn from sender
             for (int i = 0; i < fromCustomer.BankAccounts.Count; i++)
             {
@@ -499,44 +502,11 @@ namespace AwesomeBankSystem
             {
                 if (customer.BankAccounts[i].AccountNumber == to.AccountNumber)
                 {
-                    customer.BankAccounts[i].Amount += amount;
-                    
+                    customer.BankAccounts[i].Amount += currencyChecked;                    
                 }
             }
 
             Console.WriteLine($"{amount} {fromCustomer.BankAccounts[indexNum].Currency} has been successfully sent to {to.Name}");
-        }
-
-        /// <summary>
-        /// Method used to exchange money to different values before transferring them.
-        /// </summary>
-        public double ValueExchange()
-        {
-            double amount = 0;
-            int userInput = 0;
-            Console.WriteLine("Welcome to our exchange system! Pick an option from the menu:");
-            Console.WriteLine("1. I have SEK and want to exchange to USD\n" +
-                              "2. I have SEK and want to exchange to EURO\n" +
-                              "3. I have EURO and want to exchange to SEK\n" +
-                              "4. I have USD and wich to exchange to SEK");
-
-            bool check = int.TryParse(Console.ReadLine(), out userInput);
-            userInput = check ? 0 : userInput;
-
-            switch (userInput)
-            {
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                default:
-                    break;
-            }
-            return amount;
         }
 
         /// <summary>

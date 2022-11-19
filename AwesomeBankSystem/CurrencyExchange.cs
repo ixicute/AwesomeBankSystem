@@ -24,31 +24,27 @@ namespace AwesomeBankSystem
         public double SekToUSD
         {
             get { return sekToUSD; }
-            private set { sekToUSD = value; }
         }
 
         public double SekToEURO
         {
             get { return sekToEURO; }
-            private set { sekToEURO = value; }
         }
 
         public double EuroToSEK
         {
             get { return euroToSEK; }
-            private set { euroToSEK = value; }
         }
 
         public double UsdToSEK
         {
             get { return usdToSEK; }
-            private set { usdToSEK = value; }
         }
 
         /// <summary>
         /// Only Admin-class can access this method.
         /// </summary>
-        public void ChangeCurrencyExchange(Admin admin)
+        public void ChangeCurrencyExchange(User admin)
         {
             if (admin.IsAdmin)
             {
@@ -102,8 +98,43 @@ namespace AwesomeBankSystem
             else
             {
                 Console.WriteLine("You must be an admin to change the currency exchange rate.");
+            }            
+        }
+
+        public double ExchangeCurrency(BankAccount from, BankAccount to, double amount)
+        {
+            double result = amount;
+            if(from.Currency.ToLower() == "sek" && to.Currency.ToLower() == "usd")
+            {
+                result = amount* sekToUSD;
+            }
+
+            else if (from.Currency.ToLower() == "sek" && to.Currency.ToLower() == "euro")
+            {
+                result = amount * SekToEURO;
+            }
+
+            else if (from.Currency.ToLower() == "euro" && to.Currency.ToLower() == "sek")
+            {
+                result = amount * euroToSEK;
+            }
+
+            else if (from.Currency.ToLower() == "euro" && to.Currency.ToLower() == "usd")
+            {
+                result = (amount * euroToSEK) * sekToUSD;
+            }
+
+            else if (from.Currency.ToLower() == "usd" && to.Currency.ToLower() == "sek")
+            {
+                result = amount * usdToSEK;
             }
             
+            else if (from.Currency.ToLower() == "usd" && to.Currency.ToLower() == "euro")
+            {
+                result = (amount * usdToSEK) * sekToEURO;
+            }
+
+            return result;
         }
     }
 }
