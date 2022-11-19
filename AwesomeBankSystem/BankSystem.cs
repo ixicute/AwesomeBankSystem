@@ -306,8 +306,9 @@ namespace AwesomeBankSystem
 
                     case 3:
 
+                        Console.Clear();
                         Console.WriteLine("Exiting menu - No accounts were created.");
-                        input = 1;
+                        input = 1;                        
                         break;
 
                     default:
@@ -319,9 +320,11 @@ namespace AwesomeBankSystem
 
             } while (input != 1 && input != 2);
 
+            Console.Clear();
             //If user reaches case 1 or case 2 (hence creating an account)
             if (success)
             {
+                
                 //If user pressed 1 then type is "Saving Account"
                 //otherwise (aka if 2) then its "normal Account".
                 type = input == 1 ? "Saving Account" : "Normal Account";
@@ -355,6 +358,9 @@ namespace AwesomeBankSystem
         }
 
         //Can't get here if you only have one account!!!
+        /// <summary>
+        /// Used to send money between owned accounts
+        /// </summary>
         public void MoneyToSelf()
         {
             customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
@@ -406,6 +412,68 @@ namespace AwesomeBankSystem
         }
 
         /// <summary>
+        /// Used to send money from user account to another user account.
+        /// </summary>
+        public void MonetToUser()
+        {
+            customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
+
+            int userInput = 0;
+            string accOwnerName = "";
+            string sendToAcc = "";
+            BankAccount sendTo;
+            string sendFromAcc = "";
+            BankAccount sendFrom;
+            double amountToSend;
+
+            //Printing out all of the current user's accounts
+            foreach (var myAcc in customer.BankAccounts)
+            {
+                Console.WriteLine($"Account: [{myAcc.Name} - {myAcc.AccountNumber} has {myAcc.Amount} {myAcc.Currency}]");
+            }
+
+            Console.WriteLine("Write the name of the account that you want to send money from: ");
+
+            sendFromAcc = Console.ReadLine().ToLower();
+
+            //Check to see if account exists and copy it
+            sendFrom = customer.BankAccounts.Find(x => x.Name.ToLower() == sendFromAcc);
+
+            //How do we print out the account of all of the customers...
+            for (int i = 0; i < userList.Count; i++)
+            {
+                Customer temp = (Customer)userList[i];
+
+                Console.WriteLine($"{userList[i].UserName} owns the following accounts: ");
+
+                for (int j = 0; j < temp.BankAccounts.Count; j++)
+                {
+                    Console.WriteLine($"{temp.BankAccounts[j].Name} - {temp.BankAccounts[j].AccountNumber} has {temp.BankAccounts[j].Currency} as Currency.");
+                }
+
+                Console.WriteLine(customer.BankAccounts[i]);
+            }
+            
+            Console.WriteLine("Write the [name of the person] you want to send money to:");
+
+            accOwnerName = Console.ReadLine().ToLower();
+
+            Console.WriteLine("Write the [name of their account] that you want to send money to:");
+
+            sendToAcc = Console.ReadLine().ToLower();
+
+            customer = (Customer)userList.Find(x => x.UserName.ToLower() == accOwnerName);
+
+            sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
+
+            Console.WriteLine($"How much money in {sendFrom.Currency} do you wish to send?");
+
+            _ = double.TryParse(Console.ReadLine(), out amountToSend);
+            
+            Send(sendFrom, sendTo, amountToSend);
+        }
+
+        /// <summary>
         /// Method that sends money from and to any user based on recieved parameters
         /// </summary>
         public void Send(BankAccount from, BankAccount to, double amount)
@@ -451,6 +519,7 @@ namespace AwesomeBankSystem
                               "2. I have SEK and want to exchange to EURO\n" +
                               "3. I have EURO and want to exchange to SEK\n" +
                               "4. I have USD and wich to exchange to SEK");
+
             bool check = int.TryParse(Console.ReadLine(), out userInput);
             userInput = check ? 0 : userInput;
 
