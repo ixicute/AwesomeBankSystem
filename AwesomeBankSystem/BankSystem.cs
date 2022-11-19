@@ -10,10 +10,11 @@ namespace AwesomeBankSystem
     {
         User loggedInUser;
         Customer customer;
+        Customer transactionFrom;
+        Customer transactionTo;
         List<User> userList = new List<User>();
 
         CurrencyExchange changeRate = new CurrencyExchange();
-        List<BankAccount> AllAccountList = new List<BankAccount>();
         
         //user logging in: menu
         public void Run()
@@ -117,6 +118,9 @@ namespace AwesomeBankSystem
                         break;
                     case "test2":
                         MoneyToUser();
+                        break;
+                    case "test3":
+                        ShowTransactions();
                         break;
                     case "exit":
                         SignOut();
@@ -488,7 +492,9 @@ namespace AwesomeBankSystem
             int indexCustomerNum = 0;
             int indexAccNum = 0;
             double currencyChecked = amount;
-            Customer temp;
+            string senderName = "unknown";
+            string receiverName = "unknown";
+
             //If currencies are not equal
             if (from.Currency != to.Currency)
             {
@@ -500,15 +506,15 @@ namespace AwesomeBankSystem
             {
                 if (userList[i].IsAdmin == false)
                 {
-                    temp = (Customer)userList[i];
-
-                    for (int j = 0; j < temp.BankAccounts.Count; j++)
+                    transactionFrom = (Customer)userList[i];
+                    
+                    for (int j = 0; j < transactionFrom.BankAccounts.Count; j++)
                     {
-                        if (temp.BankAccounts[j].AccountNumber == from.AccountNumber)
+                        if (transactionFrom.BankAccounts[j].AccountNumber == from.AccountNumber)
                         {
-                            customer = (Customer)userList.Find(x => x.UserName == temp.UserName);
+                            customer = (Customer)userList.Find(x => x.UserName == transactionFrom.UserName);
                             customer.BankAccounts[j].Amount -= amount;
-                            
+                            senderName = customer.UserName;
                             Console.WriteLine($"New balance is: {customer.BankAccounts[j].Amount} {customer.BankAccounts[j].Currency}");
                         }
                     }
@@ -520,20 +526,52 @@ namespace AwesomeBankSystem
             {
                 if (userList[i].IsAdmin == false)
                 {
-                    temp = (Customer)userList[i];
+                    transactionTo = (Customer)userList[i];
 
-                    for (int j = 0; j < temp.BankAccounts.Count; j++)
+                    for (int j = 0; j < transactionTo.BankAccounts.Count; j++)
                     {
-                        if (temp.BankAccounts[j].AccountNumber == to.AccountNumber)
+                        if (transactionTo.BankAccounts[j].AccountNumber == to.AccountNumber)
                         {
-                            customer = (Customer)userList.Find(x => x.UserName == temp.UserName);
+                            customer = (Customer)userList.Find(x => x.UserName == transactionTo.UserName);
                             customer.BankAccounts[j].Amount += currencyChecked;
+
+                            receiverName = customer.UserName;
 
                             Console.WriteLine($"{amount} {from.Currency} has successfully been sent to {userList[i].UserName} {to.Name}");
                         }
                     }
                 }
             }
+
+            //customer = (Customer)userList.Find(x => x.UserName == transactionFrom.UserName);
+            //customer.TransactionsReceived.Add(new Transaction(to, from, amount, senderName));
+
+            customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
+            customer.TransactionsSent.Add(new TransactionsSent(from, to, amount, receiverName));
+            //customer = (Customer)userList.Find(x => x.UserName == transactionTo.UserName);
+            //customer.TransactionsSent.Add(new Transaction(from, to, amount, receiverName));
+            transactionTo.TransactionsReceived.Add(new TransactionsReceived(from, to, amount, senderName));
+        }
+
+        public void ShowTransactions()
+        {
+            customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
+
+            Console.WriteLine("Money sent from your account: ");
+
+            foreach (var item in customer.TransactionsSent)
+            {
+                Console.WriteLine($"To [{item.ToUser} - account number {item.To.AccountNumber}] - {item.Amount}");
+            }
+
+            if (transactionTo.TransactionsReceived != null)
+            {
+                foreach (var item in customer.TransactionsReceived)
+                {
+                    Console.WriteLine($"From [{item.From.AccountNumber}] to [{item.To.Name} {item.To.AccountNumber}] - {item.Amount}");
+                }
+            }
+            
         }
 
         /// <summary>
