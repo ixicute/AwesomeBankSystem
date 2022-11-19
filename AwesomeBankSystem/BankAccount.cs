@@ -39,12 +39,6 @@ namespace AwesomeBankSystem
 
         public string Currency { get; set; }
 
-        //public Currency Currency
-        //{
-        //    get { return currency; }
-        //    set { currency = value; }
-        //}
-
         public string GenerateBankAccountNumber()
         {
             Random random = new Random();
