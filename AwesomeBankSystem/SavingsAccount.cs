@@ -8,9 +8,18 @@ namespace AwesomeBankSystem
 {
     internal class SavingsAccount : BankAccount
     {
-        public string AccountType { get; init; } = "Savings Account";
+        
+        private double interest = 0.1;
+
+        public double Interest
+        {
+            get { return interest; }
+        }
+
         public SavingsAccount(string name, string currency, double amount = 0) : base(name, currency, amount)
         {
+            this.Amount += amount * interest;
+            isSavingAccount = true;
         }
     }
 }

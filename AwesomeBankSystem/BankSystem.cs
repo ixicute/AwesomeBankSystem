@@ -11,8 +11,8 @@ namespace AwesomeBankSystem
         User loggedInUser;
         Customer customer;
         List<User> userList = new List<User>();
-        
-        CurrencyProvider currencyProvider = new CurrencyProvider();
+
+        CurrencyExchange changeRate = new CurrencyExchange();
         List<BankAccount> AllAccountList = new List<BankAccount>();
         
         //user logging in: menu
@@ -115,6 +115,9 @@ namespace AwesomeBankSystem
                     case "test":
                         MoneyToSelf();
                         break;
+                    case "test2":
+                        MoneyToUser();
+                        break;
                     case "exit":
                         SignOut();
                         break;
@@ -185,12 +188,15 @@ namespace AwesomeBankSystem
             string type = "";
             int CurrencyInput = 0;
             int input = 0;
-            double ammount = 0;
+            double amount = 0;
             bool success = false;
             //Currency currency = new Currency();
             string currency = "SEK";
-            Customer loggedInCustomer = (Customer)loggedInUser;
-            //Loop menu for picking account-type.
+
+            //We find the Logged in user from the userList.
+            customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
+
+            //Loop menu for picking account-type to create.
             do
             {
                 Console.WriteLine("Which account type do you wish to open? (Press a number)\n" +
@@ -213,10 +219,12 @@ namespace AwesomeBankSystem
                             accountName = "Saving Account";
                         }
 
+                        Console.Clear();
                         Console.WriteLine("Alla konton har Svenska krona (SEK) som standard valuta.\n" +
                                           "Tryck 1 och ENTER om du vill välja ett annat valuta (Annars tryck bara ENTER): ");
                         _ = int.TryParse(Console.ReadLine(), out CurrencyInput);
-                        
+
+                        Console.Clear();
                         if (CurrencyInput == 1)
                         {
                             Console.WriteLine("Välj en valuta från listan:\n" +
@@ -235,10 +243,6 @@ namespace AwesomeBankSystem
                             {
                                 currency = "EURO";
                             }
-                            else
-                            {
-                                currency = "SEK";
-                            }
                         }
                         else
                         {
@@ -246,12 +250,17 @@ namespace AwesomeBankSystem
                         }
 
                         //Runs method with a menu to ask user for ammount to input and return to variable.
-                        ammount = AddMoney(currency);
+                        amount = AddMoney(currency);
+                        
+                        customer.BankAccounts.Add(new SavingsAccount(accountName, currency, amount));
 
-                        //This code creates a temp of type Customer and casts contents of "LoggedInUser" to it.                        
+                        Console.WriteLine($"The current interest-rate is 10%.\n" +
+                                          $"Since you have decided to add {amount} {currency} to your account: \n" +
+                                          $"It is now {customer.BankAccounts.Last().Amount}!");
 
-                        //The content of the above temp-type is then sent into a list inside of the Customer-class.
-                        loggedInCustomer.BankAccounts.Add(new SavingsAccount(accountName, currency, ammount));
+                        Console.WriteLine($"{customer.BankAccounts.Last().Name} with account number [{customer.BankAccounts.Last().AccountNumber}] "
+                                          +$"has been added to {customer.UserName}s accounts.");
+                        Console.ReadKey();
 
                         success = true;
                         break;
@@ -266,10 +275,12 @@ namespace AwesomeBankSystem
                             accountName = "Normal Account";
                         }
 
+                        Console.Clear();
                         Console.WriteLine("Alla konton har Svenska krona (SEK) som standard valuta.\n" +
-                                          "Tryck 1 och ENTER om du vill välja ett annat valuta: ");
+                                          "Tryck 1 och ENTER om du vill välja ett annat valuta (Annars tryck bara ENTER): ");
                         _ = int.TryParse(Console.ReadLine(), out CurrencyInput);
-
+                        
+                        Console.Clear();
                         if (CurrencyInput == 1)
                         {
                             Console.WriteLine("Välj en valuta från listan:\n" +
@@ -291,16 +302,17 @@ namespace AwesomeBankSystem
                         }
 
                         //Runs method with a menu to ask user for ammount to input and return to variable.
-                        ammount = AddMoney(currency);
+                        amount = AddMoney(currency);
 
-                        loggedInCustomer.BankAccounts.Add(new BaseAccount(accountName, currency, ammount));
+                        customer.BankAccounts.Add(new BaseAccount(accountName, currency, amount));
                         success = true;
                         break;
 
                     case 3:
 
+                        Console.Clear();
                         Console.WriteLine("Exiting menu - No accounts were created.");
-                        input = 1;
+                        input = 1;                        
                         break;
 
                     default:
@@ -312,17 +324,18 @@ namespace AwesomeBankSystem
 
             } while (input != 1 && input != 2);
 
+            Console.Clear();
             //If user reaches case 1 or case 2 (hence creating an account)
             if (success)
             {
+                
                 //If user pressed 1 then type is "Saving Account"
                 //otherwise (aka if 2) then its "normal Account".
                 type = input == 1 ? "Saving Account" : "Normal Account";
-                Customer customer = (Customer)loggedInUser;
 
                 Console.WriteLine($"A {type} has been created with the name {accountName}\n" +
                                   $"bankaccount number is: {customer.BankAccounts.First(x => x.Name == accountName).AccountNumber} with currency {currency}\n" +
-                                  $"Current Balance is: {ammount} {currency}");
+                                  $"Current Balance is: {amount} {currency}");
             }
         }
 
@@ -349,15 +362,19 @@ namespace AwesomeBankSystem
         }
 
         //Can't get here if you only have one account!!!
+        /// <summary>
+        /// Used to send money between owned accounts
+        /// </summary>
         public void MoneyToSelf()
         {
-            Customer loggedInCustomer = (Customer)loggedInUser;
+            customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
             int userInput = 0;
             string sendToAcc = "";
             string sendFromAcc = "";
             double amountToSend;
 
-            foreach (var myAcc in loggedInCustomer.BankAccounts)
+            //Printing out all of the current user's accounts
+            foreach (var myAcc in customer.BankAccounts)
             {
                 Console.WriteLine($"Account: [{myAcc.Name} - {myAcc.AccountNumber} has {myAcc.Amount} {myAcc.Currency}]");
             }
@@ -366,18 +383,27 @@ namespace AwesomeBankSystem
 
             sendFromAcc = Console.ReadLine().ToLower();
             
-            var sendFrom = loggedInCustomer.BankAccounts.Find(x => x.Name.ToLower() == sendFromAcc);
+            //Check to see if account exists and copy to list.
+            BankAccount sendFrom = customer.BankAccounts.Find(x => x.Name.ToLower() == sendFromAcc);
 
-            foreach (var myAcc in loggedInCustomer.BankAccounts)
+            foreach (var myAcc in customer.BankAccounts)
             {
-                Console.WriteLine($"Account: [{myAcc.Name} - {myAcc.AccountNumber} has {myAcc.Amount} {myAcc.Currency}]");
+                if (myAcc.Name == sendFrom.Name)
+                {
+                    //This will skip the account that we want to send money from
+                }
+                else
+                {
+                    Console.WriteLine($"Account: [{myAcc.Name} - {myAcc.AccountNumber} has {myAcc.Amount} {myAcc.Currency}]");
+                }
+                
             }
 
             Console.WriteLine("Write the name of the account you want to send money to: ");
             
             sendToAcc = Console.ReadLine().ToLower();
             
-            var sendTo = loggedInCustomer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
+            BankAccount sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
 
             Console.WriteLine($"How much money in {sendFrom.Currency} do you want to send?");
             bool check = double.TryParse(Console.ReadLine(), out amountToSend);
@@ -389,52 +415,125 @@ namespace AwesomeBankSystem
             Send(sendFrom, sendTo, amountToSend);
         }
 
-        public void Send(BankAccount from, BankAccount to, double amount)
+        /// <summary>
+        /// Used to send money from user account to another user account.
+        /// </summary>
+        public void MoneyToUser()
         {
-            Customer loggedInCustomer = (Customer)loggedInUser;
-            int indexNum = 0;
-            
-            for (int i = 0; i < loggedInCustomer.BankAccounts.Count; i++)
+            customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
+
+            int userInput = 0;
+            string accOwnerName = "";
+            string sendToAcc = "";
+            BankAccount sendTo;
+            string sendFromAcc = "";
+            BankAccount sendFrom;
+            double amountToSend;
+            Customer temp;
+            //Printing out all of the current user's accounts
+            foreach (var myAcc in customer.BankAccounts)
             {
-                if (loggedInCustomer.BankAccounts[i].AccountNumber == to.AccountNumber)
-                {
-                    loggedInCustomer.BankAccounts[i].Amount -= amount;
-                    indexNum = i;
-                }
+                Console.WriteLine($"Account: [{myAcc.Name} - {myAcc.AccountNumber} has {myAcc.Amount} {myAcc.Currency}]");
             }
 
-            Console.WriteLine($"New balance is: {loggedInCustomer.BankAccounts[indexNum].Amount} {loggedInCustomer.BankAccounts[indexNum].Currency}");
+            Console.WriteLine("Write the name of the account that you want to send money from: ");
+
+            sendFromAcc = Console.ReadLine().ToLower();
+
+            //Check to see if account exists and copy it
+            sendFrom = customer.BankAccounts.Find(x => x.Name.ToLower() == sendFromAcc);
+
+            //How do we print out the account of all of the customers...
+            for (int i = 0; i < userList.Count; i++)
+            {                
+                if (userList[i].IsAdmin == false && userList[i].UserName != loggedInUser.UserName)
+                {
+                    temp = (Customer)userList[i];
+
+                    Console.WriteLine($"{temp.UserName} owns the following accounts: ");
+
+                    for (int j = 0; j < temp.BankAccounts.Count; j++)
+                    {
+                        Console.WriteLine($"{temp.BankAccounts[j].Name} - {temp.BankAccounts[j].AccountNumber} has {temp.BankAccounts[j].Currency} as Currency.");
+                    }
+
+                    //Console.WriteLine(customer.BankAccounts[i]);
+                }                
+            }
+            
+            Console.WriteLine("Write the [name of the person] you want to send money to:");
+
+            accOwnerName = Console.ReadLine().ToLower();
+
+            Console.WriteLine("Write the [name of their account] that you want to send money to:");
+
+            sendToAcc = Console.ReadLine().ToLower();
+
+            customer = (Customer)userList.Find(x => x.UserName.ToLower() == accOwnerName);
+
+            sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
+
+            Console.WriteLine($"How much money in {sendFrom.Currency} do you wish to send?");
+
+            _ = double.TryParse(Console.ReadLine(), out amountToSend);
+            
+            Send(sendFrom, sendTo, amountToSend);
         }
 
         /// <summary>
-        /// Method used to exchange money to different values before transferring them.
+        /// Method that sends money from and to any user based on recieved parameters
         /// </summary>
-        public double ValueExchange()
+        public void Send(BankAccount from, BankAccount to, double amount)
         {
-            double amount = 0;
-            int userInput = 0;
-            Console.WriteLine("Welcome to our exchange system! Pick an option from the menu:");
-            Console.WriteLine("1. I have SEK and want to exchange to USD\n" +
-                              "2. I have SEK and want to exchange to EURO\n" +
-                              "3. I have EURO and want to exchange to SEK\n" +
-                              "4. I have USD and wich to exchange to SEK");
-            bool check = int.TryParse(Console.ReadLine(), out userInput);
-            userInput = check ? 0 : userInput;
-
-            switch (userInput)
+            int indexCustomerNum = 0;
+            int indexAccNum = 0;
+            double currencyChecked = amount;
+            Customer temp;
+            //If currencies are not equal
+            if (from.Currency != to.Currency)
             {
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                default:
-                    break;
+                currencyChecked = changeRate.ExchangeCurrency(from, to, amount);
             }
-            return amount;
+
+            //Money is withdrawn from sender
+            for (int i = 0; i < userList.Count; i++)
+            {
+                if (userList[i].IsAdmin == false)
+                {
+                    temp = (Customer)userList[i];
+
+                    for (int j = 0; j < temp.BankAccounts.Count; j++)
+                    {
+                        if (temp.BankAccounts[j].AccountNumber == from.AccountNumber)
+                        {
+                            customer = (Customer)userList.Find(x => x.UserName == temp.UserName);
+                            customer.BankAccounts[j].Amount -= amount;
+                            
+                            Console.WriteLine($"New balance is: {customer.BankAccounts[j].Amount} {customer.BankAccounts[j].Currency}");
+                        }
+                    }
+                }
+            }            
+
+            //Money is sent to reciever account
+            for (int i = 0; i < userList.Count; i++)
+            {
+                if (userList[i].IsAdmin == false)
+                {
+                    temp = (Customer)userList[i];
+
+                    for (int j = 0; j < temp.BankAccounts.Count; j++)
+                    {
+                        if (temp.BankAccounts[j].AccountNumber == to.AccountNumber)
+                        {
+                            customer = (Customer)userList.Find(x => x.UserName == temp.UserName);
+                            customer.BankAccounts[j].Amount += currencyChecked;
+
+                            Console.WriteLine($"{amount} {from.Currency} has successfully been sent to {userList[i].UserName} {to.Name}");
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
