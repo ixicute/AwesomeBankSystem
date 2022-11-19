@@ -115,6 +115,9 @@ namespace AwesomeBankSystem
                     case "test":
                         MoneyToSelf();
                         break;
+                    case "test2":
+                        MoneyToUser();
+                        break;
                     case "exit":
                         SignOut();
                         break;
@@ -185,7 +188,7 @@ namespace AwesomeBankSystem
             string type = "";
             int CurrencyInput = 0;
             int input = 0;
-            double ammount = 0;
+            double amount = 0;
             bool success = false;
             //Currency currency = new Currency();
             string currency = "SEK";
@@ -247,12 +250,17 @@ namespace AwesomeBankSystem
                         }
 
                         //Runs method with a menu to ask user for ammount to input and return to variable.
-                        ammount = AddMoney(currency);
+                        amount = AddMoney(currency);
+                        
+                        customer.BankAccounts.Add(new SavingsAccount(accountName, currency, amount));
 
-                        //This code creates a temp of type Customer and casts contents of "LoggedInUser" to it.                        
+                        Console.WriteLine($"The current interest-rate is 10%.\n" +
+                                          $"Since you have decided to add {amount} {currency} to your account: \n" +
+                                          $"It is now {customer.BankAccounts.Last().Amount}!");
 
-                        //The content of the above temp-type is then sent into a list inside of the Customer-class.
-                        customer.BankAccounts.Add(new SavingsAccount(accountName, currency, ammount));
+                        Console.WriteLine($"{customer.BankAccounts.Last().Name} with account number [{customer.BankAccounts.Last().AccountNumber}] "
+                                          +$"has been added to {customer.UserName}s accounts.");
+                        Console.ReadKey();
 
                         success = true;
                         break;
@@ -294,9 +302,9 @@ namespace AwesomeBankSystem
                         }
 
                         //Runs method with a menu to ask user for ammount to input and return to variable.
-                        ammount = AddMoney(currency);
+                        amount = AddMoney(currency);
 
-                        customer.BankAccounts.Add(new BaseAccount(accountName, currency, ammount));
+                        customer.BankAccounts.Add(new BaseAccount(accountName, currency, amount));
                         success = true;
                         break;
 
@@ -327,7 +335,7 @@ namespace AwesomeBankSystem
 
                 Console.WriteLine($"A {type} has been created with the name {accountName}\n" +
                                   $"bankaccount number is: {customer.BankAccounts.First(x => x.Name == accountName).AccountNumber} with currency {currency}\n" +
-                                  $"Current Balance is: {ammount} {currency}");
+                                  $"Current Balance is: {amount} {currency}");
             }
         }
 
@@ -410,7 +418,7 @@ namespace AwesomeBankSystem
         /// <summary>
         /// Used to send money from user account to another user account.
         /// </summary>
-        public void MonetToUser()
+        public void MoneyToUser()
         {
             customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
 
@@ -421,7 +429,7 @@ namespace AwesomeBankSystem
             string sendFromAcc = "";
             BankAccount sendFrom;
             double amountToSend;
-
+            Customer temp;
             //Printing out all of the current user's accounts
             foreach (var myAcc in customer.BankAccounts)
             {
@@ -437,17 +445,20 @@ namespace AwesomeBankSystem
 
             //How do we print out the account of all of the customers...
             for (int i = 0; i < userList.Count; i++)
-            {
-                Customer temp = (Customer)userList[i];
-
-                Console.WriteLine($"{userList[i].UserName} owns the following accounts: ");
-
-                for (int j = 0; j < temp.BankAccounts.Count; j++)
+            {                
+                if (userList[i].IsAdmin == false && userList[i].UserName != loggedInUser.UserName)
                 {
-                    Console.WriteLine($"{temp.BankAccounts[j].Name} - {temp.BankAccounts[j].AccountNumber} has {temp.BankAccounts[j].Currency} as Currency.");
-                }
+                    temp = (Customer)userList[i];
 
-                Console.WriteLine(customer.BankAccounts[i]);
+                    Console.WriteLine($"{temp.UserName} owns the following accounts: ");
+
+                    for (int j = 0; j < temp.BankAccounts.Count; j++)
+                    {
+                        Console.WriteLine($"{temp.BankAccounts[j].Name} - {temp.BankAccounts[j].AccountNumber} has {temp.BankAccounts[j].Currency} as Currency.");
+                    }
+
+                    //Console.WriteLine(customer.BankAccounts[i]);
+                }                
             }
             
             Console.WriteLine("Write the [name of the person] you want to send money to:");
@@ -474,11 +485,10 @@ namespace AwesomeBankSystem
         /// </summary>
         public void Send(BankAccount from, BankAccount to, double amount)
         {
-            Customer fromCustomer = (Customer)userList.Find(x => x.UserName == from.Name);
-            Customer toCustomer = (Customer)userList.Find(x => x.UserName == to.Name);
-            int indexNum = 0;
+            int indexCustomerNum = 0;
+            int indexAccNum = 0;
             double currencyChecked = amount;
-
+            Customer temp;
             //If currencies are not equal
             if (from.Currency != to.Currency)
             {
@@ -486,27 +496,44 @@ namespace AwesomeBankSystem
             }
 
             //Money is withdrawn from sender
-            for (int i = 0; i < fromCustomer.BankAccounts.Count; i++)
+            for (int i = 0; i < userList.Count; i++)
             {
-                if (customer.BankAccounts[i].AccountNumber == from.AccountNumber)
+                if (userList[i].IsAdmin == false)
                 {
-                    customer.BankAccounts[i].Amount -= amount;
-                    indexNum = i;
-                }
-            }
+                    temp = (Customer)userList[i];
 
-            Console.WriteLine($"New balance is: {customer.BankAccounts[indexNum].Amount} {customer.BankAccounts[indexNum].Currency}");
+                    for (int j = 0; j < temp.BankAccounts.Count; j++)
+                    {
+                        if (temp.BankAccounts[j].AccountNumber == from.AccountNumber)
+                        {
+                            customer = (Customer)userList.Find(x => x.UserName == temp.UserName);
+                            customer.BankAccounts[j].Amount -= amount;
+                            
+                            Console.WriteLine($"New balance is: {customer.BankAccounts[j].Amount} {customer.BankAccounts[j].Currency}");
+                        }
+                    }
+                }
+            }            
 
             //Money is sent to reciever account
-            for (int i = 0; i < toCustomer.BankAccounts.Count; i++)
+            for (int i = 0; i < userList.Count; i++)
             {
-                if (customer.BankAccounts[i].AccountNumber == to.AccountNumber)
+                if (userList[i].IsAdmin == false)
                 {
-                    customer.BankAccounts[i].Amount += currencyChecked;                    
+                    temp = (Customer)userList[i];
+
+                    for (int j = 0; j < temp.BankAccounts.Count; j++)
+                    {
+                        if (temp.BankAccounts[j].AccountNumber == to.AccountNumber)
+                        {
+                            customer = (Customer)userList.Find(x => x.UserName == temp.UserName);
+                            customer.BankAccounts[j].Amount += currencyChecked;
+
+                            Console.WriteLine($"{amount} {from.Currency} has successfully been sent to {userList[i].UserName} {to.Name}");
+                        }
+                    }
                 }
             }
-
-            Console.WriteLine($"{amount} {fromCustomer.BankAccounts[indexNum].Currency} has been successfully sent to {to.Name}");
         }
 
         /// <summary>

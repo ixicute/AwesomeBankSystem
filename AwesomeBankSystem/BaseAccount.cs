@@ -8,9 +8,9 @@ namespace AwesomeBankSystem
 {
     internal class BaseAccount : BankAccount
     {
-        public string AccountType { get; init; } = "Normal Account";
         public BaseAccount(string name, string currency, double amount = 0) : base(name, currency, amount)
         {
+            isSavingAccount = false;
         }
     }
 }

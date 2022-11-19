@@ -11,6 +11,7 @@ namespace AwesomeBankSystem
         private double amount;
         private string accountNumber;
         private string name;
+        protected bool isSavingAccount = false;
         //private Currency currency;
 
         public BankAccount(string name, string currency = "SEK", double amount = 0)
@@ -24,6 +25,11 @@ namespace AwesomeBankSystem
         {
             get { return accountNumber; }
             set { accountNumber = value; }
+        }
+
+        public bool IsSavingAccount
+        {
+            get { return isSavingAccount; }
         }
 
         public double Amount
