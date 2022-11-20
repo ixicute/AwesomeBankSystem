@@ -387,20 +387,20 @@ namespace AwesomeBankSystem
 
             sendFromAcc = Console.ReadLine().ToLower();
             
-            //Check to see if account exists and copy to list.
+            //Check to see if account exists and copy instance.
             BankAccount sendFrom = customer.BankAccounts.Find(x => x.Name.ToLower() == sendFromAcc);
 
+            //Loop through all acounts
             foreach (var myAcc in customer.BankAccounts)
             {
-                if (myAcc.Name == sendFrom.Name)
+                if (myAcc.AccountNumber == sendFrom.AccountNumber)
                 {
                     //This will skip the account that we want to send money from
                 }
                 else
                 {
                     Console.WriteLine($"Account: [{myAcc.Name} - {myAcc.AccountNumber} has {myAcc.Amount} {myAcc.Currency}]");
-                }
-                
+                }                
             }
 
             Console.WriteLine("Write the name of the account you want to send money to: ");
@@ -426,6 +426,7 @@ namespace AwesomeBankSystem
         {
             customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
 
+            //Annoying but is needed. Could probably be done with much less but what the heck, it works! :D
             string senderName = customer.UserName;
             string receiverName = "";
             string sendToAcc = "";
@@ -434,23 +435,42 @@ namespace AwesomeBankSystem
             BankAccount sendFrom;
             Customer temp;            
             double amountToSend;
-            
-            //Printing out all of the current user's accounts
-            foreach (var myAcc in customer.BankAccounts)
+
+            //Will loop until user inputs a valid account name to send money from.
+            while (true)
             {
-                Console.WriteLine($"Account: [{myAcc.Name} - {myAcc.AccountNumber} has {myAcc.Amount} {myAcc.Currency}]");
-            }
+                Console.Clear();
+                //Printing out all of the current user's accounts
+                foreach (var myAcc in customer.BankAccounts)
+                {
+                    Console.WriteLine($"Account: [{myAcc.Name} - {myAcc.AccountNumber} has {myAcc.Amount} {myAcc.Currency}]");
+                }
+                Console.WriteLine("Write the name of the account that you want to send money from: ");
 
-            Console.WriteLine("Write the name of the account that you want to send money from: ");
+                sendFromAcc = Console.ReadLine().ToLower();
 
-            sendFromAcc = Console.ReadLine().ToLower();
+                //Check to see if account exists and copy it
+                sendFrom = customer.BankAccounts.Find(x => x.Name.ToLower() == sendFromAcc);
+                bool check = customer.BankAccounts.Contains(sendFrom);
 
-            //Check to see if account exists and copy it
-            sendFrom = customer.BankAccounts.Find(x => x.Name.ToLower() == sendFromAcc);
+                if (string.IsNullOrEmpty(sendFromAcc) && check)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Account was not found. Did you enter the correct account name\n" +
+                                      "Press enter to try again!");
+                    Console.ReadKey();
+                }
+            }            
 
-            //How do we print out the account of all of the customers...
+            //Printing out all accounts available along with their user name.
             for (int i = 0; i < userList.Count; i++)
-            {                
+            {
+                //This prevents it from printing out:
+                //-admins (since they don't have accounts OR
+                //-The accounts of the user that is sending money.
                 if (userList[i].IsAdmin == false && userList[i].UserName != loggedInUser.UserName)
                 {
                     temp = (Customer)userList[i];
@@ -466,22 +486,54 @@ namespace AwesomeBankSystem
                 }                
             }
             
-            Console.WriteLine("Write the [name of the person] you want to send money to:");
+            while (true)
+            {
+                Console.WriteLine("Write the [name of the person] you want to send money to:\n" +
+                              $"Write {customer.UserName} if you want to send money to yourself.");
 
-            receiverName = Console.ReadLine().ToLower();
+                receiverName = Console.ReadLine().ToLower();
+                customer = (Customer)userList.Find(x => x.UserName.ToLower() == receiverName);
+                bool check = customer.UserName.ToLower() == receiverName;
 
-            Console.WriteLine("Write the [name of their account] that you want to send money to:");
+                if(string.IsNullOrEmpty(receiverName) && check)
+                {                    
+                    break;
+                }
 
-            sendToAcc = Console.ReadLine().ToLower();
+                else
+                {
+                    Console.WriteLine("Error.. Try again!");
+                }
+            }
 
-            customer = (Customer)userList.Find(x => x.UserName.ToLower() == receiverName);
+            while (true)
+            {
+                Console.WriteLine("Write the [name of the account] that you want to send money to:");
 
-            sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
+                sendToAcc = Console.ReadLine().ToLower();
+                sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
+                bool check = sendTo.Name.ToLower() == sendToAcc;
+
+                if (string.IsNullOrEmpty(sendToAcc) && check)
+                {
+                    break;
+                }
+
+                else
+                {
+                    Console.WriteLine("Error.. Try again!");
+                }
+            }
 
             Console.WriteLine($"How much money in {sendFrom.Currency} do you wish to send?");
 
-            _ = double.TryParse(Console.ReadLine(), out amountToSend);
-            
+            double.TryParse(Console.ReadLine(), out amountToSend);
+
+            if (amountToSend < 0)
+            {
+                amountToSend = 0;
+            }
+
             Send(sendFrom, sendTo, amountToSend, senderName, receiverName);
         }
 
