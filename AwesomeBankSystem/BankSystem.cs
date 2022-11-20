@@ -403,17 +403,21 @@ namespace AwesomeBankSystem
                 }                
             }
 
-            Console.WriteLine("Write the name of the account you want to send money to: ");
-            
-            sendToAcc = Console.ReadLine().ToLower();
-            
-            BankAccount sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
-
-            Console.WriteLine($"How much money in {sendFrom.Currency} do you want to send?");
-            bool check = double.TryParse(Console.ReadLine(), out amountToSend);
-            if (!check)
+            while (true)
             {
-                amountToSend = 0;
+                Console.WriteLine("Write the name of the account you want to send money to: ");
+
+                sendToAcc = Console.ReadLine().ToLower();
+
+                BankAccount sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
+
+                Console.WriteLine($"How much money in {sendFrom.Currency} do you want to send?");
+                bool check = double.TryParse(Console.ReadLine(), out amountToSend);
+
+                if (!amountToSend > sendTo.Amount || !amountToSend <= 0)
+                {
+                    break;
+                }
             }
 
             Send(sendFrom, sendTo, amountToSend, customer.UserName, customer.UserName);
@@ -439,6 +443,8 @@ namespace AwesomeBankSystem
             //Will loop until user inputs a valid account name to send money from.
             while (true)
             {
+                bool check = false;
+
                 Console.Clear();
                 //Printing out all of the current user's accounts
                 foreach (var myAcc in customer.BankAccounts)
@@ -451,13 +457,18 @@ namespace AwesomeBankSystem
 
                 //Check to see if account exists and copy it
                 sendFrom = customer.BankAccounts.Find(x => x.Name.ToLower() == sendFromAcc);
-                bool check = customer.BankAccounts.Contains(sendFrom);
-
-                if (string.IsNullOrEmpty(sendFromAcc) && check)
+                
+                if (!string.IsNullOrEmpty(sendFromAcc) && sendFrom != null)
                 {
-                    break;
+                    check = customer.BankAccounts.Contains(sendFrom);
+
+                    if (check)
+                    {
+                        break;
+                    }
                 }
-                else
+                
+                else if(string.IsNullOrEmpty(sendFromAcc) || !check)
                 {
                     Console.WriteLine("Account was not found. Did you enter the correct account name\n" +
                                       "Press enter to try again!");
@@ -488,19 +499,25 @@ namespace AwesomeBankSystem
             
             while (true)
             {
+                bool check = false;
+
                 Console.WriteLine("Write the [name of the person] you want to send money to:\n" +
-                              $"Write {customer.UserName} if you want to send money to yourself.");
+                              $"Write [Your username] if you want to send money to yourself.");
 
                 receiverName = Console.ReadLine().ToLower();
                 customer = (Customer)userList.Find(x => x.UserName.ToLower() == receiverName);
-                bool check = customer.UserName.ToLower() == receiverName;
 
-                if(string.IsNullOrEmpty(receiverName) && check)
-                {                    
-                    break;
-                }
+                if (!string.IsNullOrEmpty(receiverName) && customer != null)
+                {
+                    check = customer.UserName.ToLower() == receiverName;
 
-                else
+                    if (check)
+                    {
+                        break;
+                    }
+                }                
+
+                else if(string.IsNullOrEmpty(sendFromAcc) || !check)
                 {
                     Console.WriteLine("Error.. Try again!");
                 }
@@ -508,18 +525,23 @@ namespace AwesomeBankSystem
 
             while (true)
             {
+                bool check = false;
                 Console.WriteLine("Write the [name of the account] that you want to send money to:");
 
                 sendToAcc = Console.ReadLine().ToLower();
-                sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
-                bool check = sendTo.Name.ToLower() == sendToAcc;
+                sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);                
 
-                if (string.IsNullOrEmpty(sendToAcc) && check)
+                if (!string.IsNullOrEmpty(sendToAcc) && sendTo != null)
                 {
-                    break;
-                }
+                    check = sendTo.Name.ToLower() == sendToAcc;
 
-                else
+                    if (check)
+                    {
+                        break;
+                    }
+                }                
+
+                else if(string.IsNullOrEmpty(sendFromAcc) || !check)
                 {
                     Console.WriteLine("Error.. Try again!");
                 }
