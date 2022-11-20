@@ -416,7 +416,7 @@ namespace AwesomeBankSystem
                 amountToSend = 0;
             }
 
-            Send(sendFrom, sendTo, amountToSend);
+            Send(sendFrom, sendTo, amountToSend, customer.UserName, customer.UserName);
         }
 
         /// <summary>
@@ -426,14 +426,15 @@ namespace AwesomeBankSystem
         {
             customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
 
-            int userInput = 0;
-            string accOwnerName = "";
+            string senderName = customer.UserName;
+            string receiverName = "";
             string sendToAcc = "";
-            BankAccount sendTo;
             string sendFromAcc = "";
+            BankAccount sendTo;
             BankAccount sendFrom;
+            Customer temp;            
             double amountToSend;
-            Customer temp;
+            
             //Printing out all of the current user's accounts
             foreach (var myAcc in customer.BankAccounts)
             {
@@ -467,13 +468,13 @@ namespace AwesomeBankSystem
             
             Console.WriteLine("Write the [name of the person] you want to send money to:");
 
-            accOwnerName = Console.ReadLine().ToLower();
+            receiverName = Console.ReadLine().ToLower();
 
             Console.WriteLine("Write the [name of their account] that you want to send money to:");
 
             sendToAcc = Console.ReadLine().ToLower();
 
-            customer = (Customer)userList.Find(x => x.UserName.ToLower() == accOwnerName);
+            customer = (Customer)userList.Find(x => x.UserName.ToLower() == receiverName);
 
             sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
 
@@ -481,19 +482,17 @@ namespace AwesomeBankSystem
 
             _ = double.TryParse(Console.ReadLine(), out amountToSend);
             
-            Send(sendFrom, sendTo, amountToSend);
+            Send(sendFrom, sendTo, amountToSend, senderName, receiverName);
         }
 
         /// <summary>
         /// Method that sends money from and to any user based on recieved parameters
         /// </summary>
-        public void Send(BankAccount from, BankAccount to, double amount)
+        public void Send(BankAccount from, BankAccount to, double amount, string senderName, string receiverName)
         {
             int indexCustomerNum = 0;
             int indexAccNum = 0;
             double currencyChecked = amount;
-            string senderName = "unknown";
-            string receiverName = "unknown";
 
             //If currencies are not equal
             if (from.Currency != to.Currency)
@@ -514,13 +513,16 @@ namespace AwesomeBankSystem
                         {
                             customer = (Customer)userList.Find(x => x.UserName == transactionFrom.UserName);
                             customer.BankAccounts[j].Amount -= amount;
-                            senderName = customer.UserName;
                             Console.WriteLine($"New balance is: {customer.BankAccounts[j].Amount} {customer.BankAccounts[j].Currency}");
+
+                            customer.TransactionsSent.Add(new TransactionsSent(from, to, amount, receiverName));
                         }
                     }
                 }
-            }            
+            }
 
+            customer = (Customer)userList.Find(x => x.UserName == transactionFrom.UserName);
+            //customer.TransactionsSent.Add(new TransactionsSent(from, to, amount, ))
             //Money is sent to reciever account
             for (int i = 0; i < userList.Count; i++)
             {
@@ -535,22 +537,13 @@ namespace AwesomeBankSystem
                             customer = (Customer)userList.Find(x => x.UserName == transactionTo.UserName);
                             customer.BankAccounts[j].Amount += currencyChecked;
 
-                            receiverName = customer.UserName;
-
                             Console.WriteLine($"{amount} {from.Currency} has successfully been sent to {userList[i].UserName} {to.Name}");
+
+                            customer.TransactionsReceived.Add(new TransactionsReceived(from, to, amount, senderName));
                         }
                     }
                 }
             }
-
-            //customer = (Customer)userList.Find(x => x.UserName == transactionFrom.UserName);
-            //customer.TransactionsReceived.Add(new Transaction(to, from, amount, senderName));
-
-            customer = (Customer)userList.Find(x => x.UserName == loggedInUser.UserName);
-            customer.TransactionsSent.Add(new TransactionsSent(from, to, amount, receiverName));
-            //customer = (Customer)userList.Find(x => x.UserName == transactionTo.UserName);
-            //customer.TransactionsSent.Add(new Transaction(from, to, amount, receiverName));
-            transactionTo.TransactionsReceived.Add(new TransactionsReceived(from, to, amount, senderName));
         }
 
         public void ShowTransactions()
@@ -564,14 +557,11 @@ namespace AwesomeBankSystem
                 Console.WriteLine($"To [{item.ToUser} - account number {item.To.AccountNumber}] - {item.Amount}");
             }
 
-            if (transactionTo.TransactionsReceived != null)
+            Console.WriteLine("Money sent to your account: ");
+            foreach (var item in customer.TransactionsReceived)
             {
-                foreach (var item in customer.TransactionsReceived)
-                {
-                    Console.WriteLine($"From [{item.From.AccountNumber}] to [{item.To.Name} {item.To.AccountNumber}] - {item.Amount}");
-                }
+                Console.WriteLine($"From [{item.FromUser} {item.From.AccountNumber}] Amount: {item.Amount}");
             }
-            
         }
 
         /// <summary>
