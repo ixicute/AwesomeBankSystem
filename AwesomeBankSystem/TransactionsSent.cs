@@ -17,22 +17,6 @@ namespace AwesomeBankSystem
             this.toUser = toUser;
             this.amount = amount;
         }
-
-        public BankAccount From
-        {
-            get { return fromAcc; }
-        }
-
-        public BankAccount To
-        {
-            get { return toAcc; }
-        }
-
-        public double Amount
-        {
-            get { return amount; }
-        }
-
         public string ToUser
         {
             get { return toUser; }
