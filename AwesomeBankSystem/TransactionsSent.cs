@@ -7,12 +7,9 @@ using System.Threading.Tasks;
 namespace AwesomeBankSystem
 {
     
-    internal class TransactionsSent
+    internal class TransactionsSent : Transactions
     {
-        protected BankAccount fromAcc;
-        protected BankAccount toAcc;
-        protected string toUser;
-        protected double amount;
+        private string toUser;
         public TransactionsSent(BankAccount fromAcc, BankAccount toAcc, double amount, string toUser = "unknown")
         {
             this.fromAcc = fromAcc;
@@ -20,22 +17,6 @@ namespace AwesomeBankSystem
             this.toUser = toUser;
             this.amount = amount;
         }
-
-        public BankAccount From
-        {
-            get { return fromAcc; }
-        }
-
-        public BankAccount To
-        {
-            get { return toAcc; }
-        }
-
-        public double Amount
-        {
-            get { return amount; }
-        }
-
         public string ToUser
         {
             get { return toUser; }
