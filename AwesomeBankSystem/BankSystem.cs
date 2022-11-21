@@ -764,35 +764,70 @@ namespace AwesomeBankSystem
         /// 
         public void NewBankLoan()
         {
+            BankAccount newLoanToAcc;
+            string inputAcc = "";
             double totalBankAmount = 0;
             string theEnd;
+            double totalLoanAmount = (totalBankAmount * 5.0);
+            double inputAmount = Convert.ToDouble(Console.ReadLine());
+            Customer allAcc = (Customer)loggedInUser;
 
             do
             {
-                Console.WriteLine("Enter the amount of money you want to loan");
-                double inputAmount = Convert.ToDouble(Console.ReadLine());
-                Customer savingAcc = (Customer)loggedInUser;
+                Console.WriteLine("Fyll i vilket belopp du vill låna.");
 
-                foreach (var item in savingAcc.BankAccounts)  
+                foreach (var item in allAcc.BankAccounts)  //loopar igenom alla konton och plusar ihop alla summor
                 {
                     totalBankAmount += item.Amount;
                 }
 
-                double totalLoanAmount = (totalBankAmount * 5.0);  
-
-                if (inputAmount <= totalLoanAmount)  
+                if (inputAmount <= totalLoanAmount)  //om lånet är mindre än det totala beloppet kunden får låna - godkänt lån
                 {
-                    Console.WriteLine($"You can loan the amount {inputAmount} with the interestrate of 10 %.");
-                    Console.WriteLine($"Total amount of the loan is {InterestRate(inputAmount)}.");
+                    Console.WriteLine($"Ditt lån på belopp {inputAmount} godkänns. Räntesatsen är 10 procent.");
+                    Console.WriteLine($"Det totala lånebeloppet att betala tillbaka är {InterestRate(inputAmount)}.");
                     break;
                 }
                 else 
                 {
-                    Console.WriteLine($"You can't loan the amount {inputAmount}."); 
-                    Console.WriteLine("Do you want to enter another amount: Yes or No");
+                    Console.WriteLine($"Tyvärr kan inte ett lån på beloppet {inputAmount} godkännas."); //annars får kunden prova med en annan summa
+                    Console.WriteLine("Vill du prova att ansöka om ett annat belopp: Ja eller Nej");
                     theEnd = Console.ReadLine();
                 }
-            } while (theEnd.ToLower()!="no");
+            } while (theEnd.ToLower()!="nej"); //loopen fortsätter om personen vill prova igen
+
+            double approvedLoan = InterestRate(inputAmount);
+
+            while (true)
+            {
+                bool check = false;
+                foreach (var item in customer.BankAccounts)
+                {
+                    Console.WriteLine($"Konto: [{item.Name} - {item.AccountNumber}, belopp {item.Amount} {item.Currency}]");
+                }
+
+                Console.WriteLine("Skriv namnet på det konto du vill att ditt nya lån ska överföras till: ");
+                inputAcc = Console.ReadLine().ToLower();
+
+                newLoanToAcc = customer.BankAccounts.Find(x => x.Name.ToLower() == inputAcc);  //Check to see if account exists and save in instance.
+
+                if (!string.IsNullOrEmpty(inputAcc) && newLoanToAcc != null)
+                {
+                    check = customer.BankAccounts.Contains(newLoanToAcc);  //om kontot existerar bryts loopen
+
+                    if (check)
+                    {
+                        break;
+                    }
+                }
+                else if (string.IsNullOrEmpty(inputAcc) || !check) //men om input är tomt eller om inputkontot inte existerar får man försöka igen
+                {
+                    Console.WriteLine($"Kontot {inputAcc} existerar inte. Klicka på enter för att prova fylla i kontots namn igen.");
+                    Console.ReadKey();
+                }
+            }
+            newLoanToAcc.Amount = approvedLoan;
+            
+            Console.WriteLine($"Ditt lån har nu lagts till i ditt konto [{newLoanToAcc.Name}, kontonummer {newLoanToAcc.AccountNumber}]");
         }
 
         /// <summary>
