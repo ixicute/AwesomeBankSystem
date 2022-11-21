@@ -7,12 +7,9 @@ using System.Threading.Tasks;
 namespace AwesomeBankSystem
 {
     
-    internal class TransactionsSent
+    internal class TransactionsSent : Transactions
     {
-        protected BankAccount fromAcc;
-        protected BankAccount toAcc;
-        protected string toUser;
-        protected double amount;
+        private string toUser;
         public TransactionsSent(BankAccount fromAcc, BankAccount toAcc, double amount, string toUser = "unknown")
         {
             this.fromAcc = fromAcc;

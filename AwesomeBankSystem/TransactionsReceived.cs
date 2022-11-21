@@ -7,12 +7,8 @@ using System.Xml.Linq;
 
 namespace AwesomeBankSystem
 {
-    internal class TransactionsReceived
+    internal class TransactionsReceived : Transactions
     {
-        protected BankAccount fromAcc;
-        protected BankAccount toAcc;
-        protected string fromUser;
-        protected double amount;
         public TransactionsReceived(BankAccount fromAcc, BankAccount toAcc, double amount, string fromUser = "unknown")
         {
             this.fromAcc = fromAcc;
