@@ -769,17 +769,19 @@ namespace AwesomeBankSystem
         /// 
         public void NewBankLoan()
         {
+            Console.Clear();
             BankAccount newLoanToAcc;
             string inputAcc = "";
             double totalBankAmount = 0;
             string theEnd;
             double totalLoanAmount = (totalBankAmount * 5.0);
-            double inputAmount = Convert.ToDouble(Console.ReadLine());
+            double inputAmount;
             Customer allAcc = (Customer)loggedInUser;
 
             do
             {
                 Console.WriteLine("Fyll i vilket belopp du vill låna.");
+                inputAmount = Convert.ToDouble(Console.ReadLine());
 
                 //loops through all the user accounts - adding up the amounts
                 foreach (var item in allAcc.BankAccounts)  
