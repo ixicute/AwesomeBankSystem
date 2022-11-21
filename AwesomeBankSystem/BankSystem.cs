@@ -107,6 +107,7 @@ namespace AwesomeBankSystem
                                   "OB.  Öppna nytt konto\n" +
                                   "SP1. Skicka pengar till konto du äger\n" +
                                   "SP2. Skicka pengar till annan kund\n" +
+                                  "NL. Ansök om nytt lån\n" +
                                   "VT.  Visa alla transaktioner till och från dina konton\n" +
                                   "EX.  Logga ut");
                 command = Console.ReadLine();
@@ -123,6 +124,9 @@ namespace AwesomeBankSystem
                         break;
                     case "sp2":
                         MoneyToUser();
+                        break;
+                    case "nl":
+                        NewBankLoan();
                         break;
                     case "vt":
                         ShowTransactions();
