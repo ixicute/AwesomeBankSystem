@@ -107,6 +107,7 @@ namespace AwesomeBankSystem
                                   "OB.  Öppna nytt konto\n" +
                                   "SP1. Skicka pengar till konto du äger\n" +
                                   "SP2. Skicka pengar till annan kund\n" +
+                                  "NL. Ansök om nytt lån\n" +
                                   "VT.  Visa alla transaktioner till och från dina konton\n" +
                                   "EX.  Logga ut");
                 command = Console.ReadLine();
@@ -123,6 +124,9 @@ namespace AwesomeBankSystem
                         break;
                     case "sp2":
                         MoneyToUser();
+                        break;
+                    case "nl":
+                        NewBankLoan();
                         break;
                     case "vt":
                         ShowTransactions();
@@ -759,29 +763,34 @@ namespace AwesomeBankSystem
         }
 
         /// <summary>
-        /// Checking and adding up all amounts then approves loan OR user can try entering another loan amount  
+        /// Checking and adding up all amounts then approves loan OR customer can try entering another loan amount.
+        /// Customer then chooses which account the money transfers to.
         /// </summary>
         /// 
         public void NewBankLoan()
         {
+            Console.Clear();
             BankAccount newLoanToAcc;
             string inputAcc = "";
             double totalBankAmount = 0;
             string theEnd;
             double totalLoanAmount = (totalBankAmount * 5.0);
-            double inputAmount = Convert.ToDouble(Console.ReadLine());
+            double inputAmount;
             Customer allAcc = (Customer)loggedInUser;
 
             do
             {
                 Console.WriteLine("Fyll i vilket belopp du vill låna.");
+                inputAmount = Convert.ToDouble(Console.ReadLine());
 
-                foreach (var item in allAcc.BankAccounts)  //loopar igenom alla konton och plusar ihop alla summor
+                //loops through all the user accounts - adding up the amounts
+                foreach (var item in allAcc.BankAccounts)  
                 {
                     totalBankAmount += item.Amount;
                 }
 
-                if (inputAmount <= totalLoanAmount)  //om lånet är mindre än det totala beloppet kunden får låna - godkänt lån
+                //loan approved when loan is less than the total amount, else the customer can try another amount
+                if (inputAmount <= totalLoanAmount)  
                 {
                     Console.WriteLine($"Ditt lån på belopp {inputAmount} godkänns. Räntesatsen är 10 procent.");
                     Console.WriteLine($"Det totala lånebeloppet att betala tillbaka är {InterestRate(inputAmount)}.");
@@ -789,14 +798,16 @@ namespace AwesomeBankSystem
                 }
                 else 
                 {
-                    Console.WriteLine($"Tyvärr kan inte ett lån på beloppet {inputAmount} godkännas."); //annars får kunden prova med en annan summa
+                    Console.WriteLine($"Tyvärr kan inte ett lån på beloppet {inputAmount} godkännas."); 
                     Console.WriteLine("Vill du prova att ansöka om ett annat belopp: Ja eller Nej");
                     theEnd = Console.ReadLine();
                 }
-            } while (theEnd.ToLower()!="nej"); //loopen fortsätter om personen vill prova igen
+            } 
+            while (theEnd.ToLower()!="nej"); 
 
             double approvedLoan = InterestRate(inputAmount);
 
+            //customer can choose account to transfer money to
             while (true)
             {
                 bool check = false;
@@ -808,18 +819,19 @@ namespace AwesomeBankSystem
                 Console.WriteLine("Skriv namnet på det konto du vill att ditt nya lån ska överföras till: ");
                 inputAcc = Console.ReadLine().ToLower();
 
-                newLoanToAcc = customer.BankAccounts.Find(x => x.Name.ToLower() == inputAcc);  //Check to see if account exists and save in instance.
+                //Check to see if account exists and save in instance
+                newLoanToAcc = customer.BankAccounts.Find(x => x.Name.ToLower() == inputAcc);  
 
                 if (!string.IsNullOrEmpty(inputAcc) && newLoanToAcc != null)
                 {
-                    check = customer.BankAccounts.Contains(newLoanToAcc);  //om kontot existerar bryts loopen
+                    check = customer.BankAccounts.Contains(newLoanToAcc);  
 
                     if (check)
                     {
                         break;
                     }
                 }
-                else if (string.IsNullOrEmpty(inputAcc) || !check) //men om input är tomt eller om inputkontot inte existerar får man försöka igen
+                else if (string.IsNullOrEmpty(inputAcc) || !check) 
                 {
                     Console.WriteLine($"Kontot {inputAcc} existerar inte. Klicka på enter för att prova fylla i kontots namn igen.");
                     Console.ReadKey();
@@ -831,7 +843,7 @@ namespace AwesomeBankSystem
         }
 
         /// <summary>
-        /// formula for interestrate, returns the hole loan including interest
+        /// Formula for interest rate, returns the loan amount including interest
         /// </summary>
         public double InterestRate(double inputAmount) 
         {
