@@ -153,6 +153,8 @@ namespace AwesomeBankSystem
         {
             userList.Add(new Admin("admin", "password", true));
             userList.Add(new Customer("customer", "password", false));
+            customer = (Customer)userList.Find(x => x.UserName == "customer");
+            customer.BankAccounts.Add(new BaseAccount("Baskonto", "SEK", 3500));
             userList.Add(new Customer("Aldor", "password", false));
             customer = (Customer)userList.Find(x => x.UserName == "Aldor");
             customer.BankAccounts.Add(new BaseAccount("Baskonto", "SEK", 1000));
