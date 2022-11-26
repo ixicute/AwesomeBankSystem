@@ -62,7 +62,7 @@ namespace AwesomeBankSystem
         public void LogIn()
         {
             Console.WriteLine($"Du är nu inloggad som {loggedInUser.UserName}\n");
-            Thread.Sleep(3000);
+            Thread.Sleep(2000);
             if (loggedInUser.IsAdmin)
             {
                 AdminMenu();
@@ -111,12 +111,14 @@ namespace AwesomeBankSystem
 
         public void UserMenu()
         {
-            Console.Clear();
-            Console.WriteLine(FiggleFonts.Kban.Render("Awesome Bank"));
-            Console.WriteLine("Kund meny");
+            
             string command = "";
             while (!command.ToLower().Equals("ex"))
             {
+                Console.Clear();
+                Console.WriteLine(FiggleFonts.Kban.Render("Awesome Bank"));
+                Console.WriteLine("Kund meny");
+
                 Console.WriteLine("\nVälj menyval genom att skriva in de bokstäver som motsvarar det du vill göra.\n");
                 Console.WriteLine("SK - Skriv ut mina konton\n" +
                                   "OB - Öppna nytt konto\n" +
@@ -195,6 +197,7 @@ namespace AwesomeBankSystem
             //Todo
             Console.Clear();
             Console.WriteLine("\nDu loggas nu ut från Awesome Bank. Välkommen åter!");
+            Thread.Sleep(2000);
         }
 
         public void PrintBankAccounts()
@@ -203,13 +206,15 @@ namespace AwesomeBankSystem
             Customer loggedInCustomer = (Customer)loggedInUser;
             if (loggedInCustomer.BankAccounts.Count < 1)
             {
-                Console.Clear();
                 Console.WriteLine("Du har för tillfället inga bankkonton, vänligen skapa ett nytt konto genom att ange bokstäverna OB.\n");
             }
             foreach (BankAccount bankAccount in loggedInCustomer.BankAccounts)
             {
                 Console.WriteLine($"Kontonamn: {bankAccount.Name} Kontonummer: {bankAccount.AccountNumber} Belopp: {bankAccount.Amount} {bankAccount.Currency}");
             }
+            Console.WriteLine("Tryck ENTER för att fortsätta...");
+            Console.ReadKey();
+            Console.Clear();
 
         }
 
@@ -313,6 +318,9 @@ namespace AwesomeBankSystem
             }
         }
 
+        /// <summary>
+        /// Used to set a name for a bank account, with default values.
+        /// </summary>
         private string SetAccountName(int type)
         {
             string accountName = "";
@@ -329,6 +337,9 @@ namespace AwesomeBankSystem
             return accountName;
         }
 
+        /// <summary>
+        /// Used to select currency-name from a menu.
+        /// </summary>
         private string SetCurrency()
         {
             int currencyInput;
@@ -403,7 +414,7 @@ namespace AwesomeBankSystem
             BankAccount sendFrom;
 
             //Will only work if user exists and has a bank account
-            if (customer.BankAccounts.Count > 0 && customer != null)
+            if (customer.BankAccounts.Count >= 2 && customer != null)
             {
                 while (true)
                 {
@@ -435,7 +446,7 @@ namespace AwesomeBankSystem
                     else if (string.IsNullOrEmpty(sendFromAcc) || !check)
                     {
                         Console.WriteLine("Kontot kunde inte hittas. Vänligen försök igen om några sekunder.");
-                        Thread.Sleep(5000);
+                        Thread.Sleep(3000);
                     }
                 }
 
@@ -462,7 +473,7 @@ namespace AwesomeBankSystem
 
                     sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
 
-                    if (!string.IsNullOrEmpty(sendToAcc) && sendTo != null)
+                    if (!string.IsNullOrEmpty(sendToAcc) && sendTo != null && sendTo != sendFrom && sendToAcc != "ex")
                     {
                         check = customer.BankAccounts.Contains(sendTo);
 
@@ -474,7 +485,7 @@ namespace AwesomeBankSystem
                         else
                         {
                             Console.WriteLine("Kontot kunde inte hittas. Vänligen försök igen.");
-                            Thread.Sleep(5000);
+                            Thread.Sleep(3000);
                         }
                     }
 
@@ -499,9 +510,16 @@ namespace AwesomeBankSystem
                 Send(sendFrom, sendTo, amountToSend, customer.UserName, customer.UserName);
             }
 
-            else
+            else if (customer.BankAccounts.Count == 0)
             {
                 Console.WriteLine("Du har inte skapat några konton än.");
+            }
+
+            else if (customer.BankAccounts.Count == 1)
+            {
+                Console.Clear();
+                Console.WriteLine("Det har bara ett konto och kan därmed inte föra över pengar just nu.");
+                Thread.Sleep(3000);
             }
         }
 
@@ -531,7 +549,7 @@ namespace AwesomeBankSystem
                     bool check = false;
 
                     Console.Clear();
-
+                    Console.WriteLine("Du äger följande konton: \n");
                     //Printing out all of the current user's accounts
                     foreach (var myAcc in customer.BankAccounts)
                     {
@@ -564,6 +582,7 @@ namespace AwesomeBankSystem
                     }
                 }
 
+                Console.Clear();
                 //Loop until it finds the correct user to send money to.
                 while (true)
                 {
@@ -581,7 +600,7 @@ namespace AwesomeBankSystem
 
                             for (int j = 0; j < temp.BankAccounts.Count; j++)
                             {
-                                Console.WriteLine($"{temp.BankAccounts[j].Name} - {temp.BankAccounts[j].AccountNumber} har {temp.BankAccounts[j].Currency} som valuta.");
+                                Console.WriteLine($"Konto: {temp.BankAccounts[j].Name} - [{temp.BankAccounts[j].AccountNumber}] har {temp.BankAccounts[j].Currency} som valuta.");
                             }
 
                             //Console.WriteLine(customer.BankAccounts[i]);
@@ -606,14 +625,19 @@ namespace AwesomeBankSystem
                         }
                     }
 
-                    else if (customer.UserName == loggedInUser.UserName)
+                    else if (customer != null)
                     {
-                        Console.WriteLine("Du får inte skriva dig själv som mottagare.");
+                        if (customer.UserName == loggedInUser.UserName)
+                        {
+                            Console.WriteLine("Du får inte skriva dig själv som mottagare.");
+                        }                        
                     }
 
                     else if (string.IsNullOrEmpty(sendFromAcc) || !check)
                     {
                         Console.WriteLine("Något blev fel! Vänligen försök igen!");
+                        Thread.Sleep(2000);
+                        Console.Clear();
                     }
                 }
 
