@@ -41,7 +41,7 @@ namespace AwesomeBankSystem
                 if (userList.Contains(temp))
                 {
                     loggedInUser = temp;
-                    InLoggad();
+                    LogIn();
                     break;
                 }
                 else
@@ -59,10 +59,10 @@ namespace AwesomeBankSystem
 
         }
 
-        public void InLoggad()
+        public void LogIn()
         {
             Console.WriteLine($"Du är nu inloggad som {loggedInUser.UserName}\n");
-
+            Thread.Sleep(3000);
             if (loggedInUser.IsAdmin)
             {
                 AdminMenu();
@@ -85,7 +85,7 @@ namespace AwesomeBankSystem
                 Console.WriteLine("Skriv in vilket kommando du vill utföra.\n");
                 Console.WriteLine("LK = Lägger till ny kund\n" +
                                   "SK = Skriva ut kundlista\n" +
-                                  "VK = Ändra växelkurs" +
+                                  "VK = Ändra växelkurs\n" +
                                   "Exit = Avsluta programmet");
                 command = Console.ReadLine();
                 switch (command.ToLower())
@@ -246,51 +246,18 @@ namespace AwesomeBankSystem
                 switch (input)
                 {
                     case 1:
-                        //Ask user for account name + error handling.
-                        Console.WriteLine("\nVälj och fyll i namn för ditt nya konto: ");
-                        accountName = Console.ReadLine();
+                        //Method that returns name of account.
+                        accountName = SetAccountName(input);
 
-                        if (string.IsNullOrEmpty(accountName) || string.IsNullOrWhiteSpace(accountName))
-                        {
-                            accountName = "Sparkonto";
-                        }
-
-                        Console.Clear();
-                        Console.WriteLine("Alla konton har Svenska krona (SEK) som standard valuta.\n" +
-                                          "Tryck 1 och ENTER om du vill välja ett annat valuta. Annars tryck bara ENTER. ");
-                        _ = int.TryParse(Console.ReadLine(), out CurrencyInput);
-
-                        Console.Clear();
-                        if (CurrencyInput == 1)
-                        {
-                            Console.WriteLine("Välj en valuta från listan:\n" +
-                                              "1. USD\n" +
-                                              "2. EURO\n" +
-                                              "3. Fortsätt med SEK");
-                            int temp;
-                            bool check = int.TryParse(Console.ReadLine(), out temp);
-                            temp = check ? temp : 3;
-
-                            if (temp == 1)
-                            {
-                                currency = "USD";
-                            }
-                            else if (temp == 2)
-                            {
-                                currency = "EURO";
-                            }
-                        }
-                        else
-                        {
-                            currency = "SEK";
-                        }
+                        //Method that returns name of currency.
+                        currency = SetCurrency();
 
                         //Runs method with a menu to ask user for ammount to input and return to variable.
                         amount = AddMoney(currency);
 
                         customer.BankAccounts.Add(new SavingsAccount(accountName, currency, amount));
 
-                        Console.WriteLine($"\nDen nuvarande räntan ligger på 10 procent.\n" +
+                        Console.WriteLine($"\nDen nuvarande räntan ligger på 10%.\n" +
                                           $"Du har valt att föra över {amount} {currency} till ditt nya konto. \n" +
                                           $"Med räntan inkluderad är det totala beloppet {customer.BankAccounts.Last().Amount} {currency}.");
 
@@ -302,40 +269,11 @@ namespace AwesomeBankSystem
                         break;
 
                     case 2:
-                        //Ask user for account name + error handling.
-                        Console.WriteLine("Välj och fyll i namn för ditt nya konto: ");
-                        accountName = Console.ReadLine();
+                        //Method that returns name of account.
+                        accountName = SetAccountName(input);
 
-                        if (string.IsNullOrEmpty(accountName) || string.IsNullOrWhiteSpace(accountName))
-                        {
-                            accountName = "Privatkonto";
-                        }
-
-                        Console.Clear();
-                        Console.WriteLine("Alla konton har Svenska krona (SEK) som standard valuta.\n" +
-                                          "Tryck 1 och ENTER om du vill välja ett annat valuta (Annars tryck bara ENTER): ");
-                        _ = int.TryParse(Console.ReadLine(), out CurrencyInput);
-
-                        Console.Clear();
-                        if (CurrencyInput == 1)
-                        {
-                            Console.WriteLine("Välj en valuta från listan:\n" +
-                                              "1. USD\n" +
-                                              "2. EURO\n" +
-                                              "3. Fortsätt med SEK");
-                            int temp;
-                            bool check = int.TryParse(Console.ReadLine(), out temp);
-                            temp = check ? temp : 3;
-
-                            if (temp == 1)
-                            {
-                                currency = "USD";
-                            }
-                            else if (temp == 2)
-                            {
-                                currency = "EURO";
-                            }
-                        }
+                        //Method that returns name of currency.
+                        currency = SetCurrency();
 
                         //Runs method with a menu to ask user for ammount to input and return to variable.
                         amount = AddMoney(currency);
@@ -373,6 +311,60 @@ namespace AwesomeBankSystem
                                   $"Kontonummer: {customer.BankAccounts.First(x => x.Name == accountName).AccountNumber}, i valuta {currency}.\n" +
                                   $"Nuvarande totalbelopp: {amount} {currency}\n");
             }
+        }
+
+        private string SetAccountName(int type)
+        {
+            string accountName = "";
+            Console.WriteLine("\nVälj och fyll i namn för ditt nya konto: ");
+            accountName = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(accountName) || string.IsNullOrWhiteSpace(accountName))
+            {
+                accountName = type == 1 ? "Sparkonto" : "Privatkonto";
+            }
+            Console.Clear();
+            Console.WriteLine($"[{accountName}] har skapats.");
+
+            return accountName;
+        }
+
+        private string SetCurrency()
+        {
+            int currencyInput;
+            string currencyName = "SEK";
+
+            Console.WriteLine($"Alla konton har Svenska krona {currencyName} som standard valuta.\n" +
+                              "Tryck 1 och ENTER om du vill välja ett annat valuta. Annars tryck bara ENTER. ");
+            _ = int.TryParse(Console.ReadLine(), out currencyInput);
+
+            Console.Clear();
+            if (currencyInput == 1)
+            {
+                Console.WriteLine("Välj en valuta från listan:\n" +
+                                  "1. USD\n" +
+                                  "2. EURO\n" +
+                                  "3. Fortsätt med SEK");
+                int temp;
+                bool check = int.TryParse(Console.ReadLine(), out temp);
+                temp = check ? temp : 3;
+
+                if (temp == 1)
+                {
+                    currencyName = "USD";
+                }
+                else if (temp == 2)
+                {
+                    currencyName = "EURO";
+                }
+            }
+
+            else
+            {
+                currencyName = "SEK";
+            }
+
+            return currencyName;
         }
 
         /// <summary>
