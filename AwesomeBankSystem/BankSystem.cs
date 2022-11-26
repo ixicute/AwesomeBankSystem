@@ -13,8 +13,8 @@ namespace AwesomeBankSystem
         Customer customer;
         Customer transactionFrom;
         Customer transactionTo;
+        Admin admin;
         List<User> userList = new List<User>();
-
         CurrencyExchange changeRate = new CurrencyExchange();
 
         //user logging in: menu
@@ -41,7 +41,7 @@ namespace AwesomeBankSystem
                 if (userList.Contains(temp))
                 {
                     loggedInUser = temp;
-                    InLoggad();
+                    LogIn();
                     break;
                 }
                 else
@@ -59,10 +59,10 @@ namespace AwesomeBankSystem
 
         }
 
-        public void InLoggad()
+        public void LogIn()
         {
             Console.WriteLine($"Du är nu inloggad som {loggedInUser.UserName}\n");
-
+            Thread.Sleep(2000);
             if (loggedInUser.IsAdmin)
             {
                 AdminMenu();
@@ -76,13 +76,17 @@ namespace AwesomeBankSystem
         public void AdminMenu()
         {
             Console.Clear();
+            admin = (Admin)userList.Find(x => x.UserName == loggedInUser.UserName);
             Console.WriteLine(FiggleFonts.Kban.Render("Awesome Bank"));
             Console.WriteLine("Admin meny");
             string command = "";
             while (!command.ToLower().Equals("exit"))
             {
                 Console.WriteLine("Skriv in vilket kommando du vill utföra.\n");
-                Console.WriteLine("Tillgängliga kommandon:\nLK = Lägger till ny kund, SK = Skriva ut kundlista, Exit = Avsluta programmet");
+                Console.WriteLine("LK = Lägger till ny kund\n" +
+                                  "SK = Skriva ut kundlista\n" +
+                                  "VK = Ändra växelkurs\n" +
+                                  "Exit = Avsluta programmet");
                 command = Console.ReadLine();
                 switch (command.ToLower())
                 {
@@ -91,6 +95,9 @@ namespace AwesomeBankSystem
                         break;
                     case "sk":
                         PrintAllCustomers();
+                        break;
+                    case "vk":
+                        changeRate.ChangeCurrencyExchange(admin);
                         break;
                     case "exit":
                         SignOut();
@@ -104,12 +111,14 @@ namespace AwesomeBankSystem
 
         public void UserMenu()
         {
-            Console.Clear();
-            Console.WriteLine(FiggleFonts.Kban.Render("Awesome Bank"));
-            Console.WriteLine("Kund meny");
+            
             string command = "";
             while (!command.ToLower().Equals("ex"))
             {
+                Console.Clear();
+                Console.WriteLine(FiggleFonts.Kban.Render("Awesome Bank"));
+                Console.WriteLine("Kund meny");
+
                 Console.WriteLine("\nVälj menyval genom att skriva in de bokstäver som motsvarar det du vill göra.\n");
                 Console.WriteLine("SK - Skriv ut mina konton\n" +
                                   "OB - Öppna nytt konto\n" +
@@ -144,8 +153,12 @@ namespace AwesomeBankSystem
                         break;
                     default:
                         Console.WriteLine("Ogiltigt val. Försök igen.");
+                        Console.ReadKey();
                         break;
                 }
+
+                Console.WriteLine("Tryck ENTER för att fortsätta...");
+                Console.ReadKey();
             }
         }
 
@@ -188,6 +201,7 @@ namespace AwesomeBankSystem
             //Todo
             Console.Clear();
             Console.WriteLine("\nDu loggas nu ut från Awesome Bank. Välkommen åter!");
+            Thread.Sleep(2000);
         }
 
         public void PrintBankAccounts()
@@ -196,14 +210,12 @@ namespace AwesomeBankSystem
             Customer loggedInCustomer = (Customer)loggedInUser;
             if (loggedInCustomer.BankAccounts.Count < 1)
             {
-                Console.Clear();
                 Console.WriteLine("Du har för tillfället inga bankkonton, vänligen skapa ett nytt konto genom att ange bokstäverna OB.\n");
             }
             foreach (BankAccount bankAccount in loggedInCustomer.BankAccounts)
             {
                 Console.WriteLine($"Kontonamn: {bankAccount.Name} Kontonummer: {bankAccount.AccountNumber} Belopp: {bankAccount.Amount} {bankAccount.Currency}");
             }
-
         }
 
         /// <summary>
@@ -239,51 +251,18 @@ namespace AwesomeBankSystem
                 switch (input)
                 {
                     case 1:
-                        //Ask user for account name + error handling.
-                        Console.WriteLine("\nVälj och fyll i namn för ditt nya konto: ");
-                        accountName = Console.ReadLine();
+                        //Method that returns name of account.
+                        accountName = SetAccountName(input);
 
-                        if (string.IsNullOrEmpty(accountName) || string.IsNullOrWhiteSpace(accountName))
-                        {
-                            accountName = "Sparkonto";
-                        }
-
-                        Console.Clear();
-                        Console.WriteLine("Alla konton har Svenska krona (SEK) som standard valuta.\n" +
-                                          "Tryck 1 och ENTER om du vill välja ett annat valuta. Annars tryck bara ENTER. ");
-                        _ = int.TryParse(Console.ReadLine(), out CurrencyInput);
-
-                        Console.Clear();
-                        if (CurrencyInput == 1)
-                        {
-                            Console.WriteLine("Välj en valuta från listan:\n" +
-                                              "1. USD\n" +
-                                              "2. EURO\n" +
-                                              "3. Fortsätt med SEK");
-                            int temp;
-                            bool check = int.TryParse(Console.ReadLine(), out temp);
-                            temp = check ? temp : 3;
-
-                            if (temp == 1)
-                            {
-                                currency = "USD";
-                            }
-                            else if (temp == 2)
-                            {
-                                currency = "EURO";
-                            }
-                        }
-                        else
-                        {
-                            currency = "SEK";
-                        }
+                        //Method that returns name of currency.
+                        currency = SetCurrency();
 
                         //Runs method with a menu to ask user for ammount to input and return to variable.
                         amount = AddMoney(currency);
 
                         customer.BankAccounts.Add(new SavingsAccount(accountName, currency, amount));
 
-                        Console.WriteLine($"\nDen nuvarande räntan ligger på 10 procent.\n" +
+                        Console.WriteLine($"\nDen nuvarande räntan ligger på 10%.\n" +
                                           $"Du har valt att föra över {amount} {currency} till ditt nya konto. \n" +
                                           $"Med räntan inkluderad är det totala beloppet {customer.BankAccounts.Last().Amount} {currency}.");
 
@@ -295,40 +274,11 @@ namespace AwesomeBankSystem
                         break;
 
                     case 2:
-                        //Ask user for account name + error handling.
-                        Console.WriteLine("Välj och fyll i namn för ditt nya konto: ");
-                        accountName = Console.ReadLine();
+                        //Method that returns name of account.
+                        accountName = SetAccountName(input);
 
-                        if (string.IsNullOrEmpty(accountName) || string.IsNullOrWhiteSpace(accountName))
-                        {
-                            accountName = "Privatkonto";
-                        }
-
-                        Console.Clear();
-                        Console.WriteLine("Alla konton har Svenska krona (SEK) som standard valuta.\n" +
-                                          "Tryck 1 och ENTER om du vill välja ett annat valuta (Annars tryck bara ENTER): ");
-                        _ = int.TryParse(Console.ReadLine(), out CurrencyInput);
-
-                        Console.Clear();
-                        if (CurrencyInput == 1)
-                        {
-                            Console.WriteLine("Välj en valuta från listan:\n" +
-                                              "1. USD\n" +
-                                              "2. EURO\n" +
-                                              "3. Fortsätt med SEK");
-                            int temp;
-                            bool check = int.TryParse(Console.ReadLine(), out temp);
-                            temp = check ? temp : 3;
-
-                            if (temp == 1)
-                            {
-                                currency = "USD";
-                            }
-                            else if (temp == 2)
-                            {
-                                currency = "EURO";
-                            }
-                        }
+                        //Method that returns name of currency.
+                        currency = SetCurrency();
 
                         //Runs method with a menu to ask user for ammount to input and return to variable.
                         amount = AddMoney(currency);
@@ -369,6 +319,66 @@ namespace AwesomeBankSystem
         }
 
         /// <summary>
+        /// Used to set a name for a bank account, with default values.
+        /// </summary>
+        private string SetAccountName(int type)
+        {
+            string accountName = "";
+            Console.WriteLine("\nVälj och fyll i namn för ditt nya konto: ");
+            accountName = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(accountName) || string.IsNullOrWhiteSpace(accountName))
+            {
+                accountName = type == 1 ? "Sparkonto" : "Privatkonto";
+            }
+            Console.Clear();
+            Console.WriteLine($"[{accountName}] har skapats.");
+
+            return accountName;
+        }
+
+        /// <summary>
+        /// Used to select currency-name from a menu.
+        /// </summary>
+        private string SetCurrency()
+        {
+            int currencyInput;
+            string currencyName = "SEK";
+
+            Console.WriteLine($"Alla konton har Svenska krona {currencyName} som standard valuta.\n" +
+                              "Tryck 1 och ENTER om du vill välja ett annat valuta. Annars tryck bara ENTER. ");
+            _ = int.TryParse(Console.ReadLine(), out currencyInput);
+
+            Console.Clear();
+            if (currencyInput == 1)
+            {
+                Console.WriteLine("Välj en valuta från listan:\n" +
+                                  "1. USD\n" +
+                                  "2. EURO\n" +
+                                  "3. Fortsätt med SEK");
+                int temp;
+                bool check = int.TryParse(Console.ReadLine(), out temp);
+                temp = check ? temp : 3;
+
+                if (temp == 1)
+                {
+                    currencyName = "USD";
+                }
+                else if (temp == 2)
+                {
+                    currencyName = "EURO";
+                }
+            }
+
+            else
+            {
+                currencyName = "SEK";
+            }
+
+            return currencyName;
+        }
+
+        /// <summary>
         /// Lets user specify ammount of money to add and returns it as a double-variable.
         /// </summary>
         private double AddMoney(string currency)
@@ -402,9 +412,10 @@ namespace AwesomeBankSystem
             double amountToSend;
             BankAccount sendTo;
             BankAccount sendFrom;
+            bool success = true;
 
             //Will only work if user exists and has a bank account
-            if (customer.BankAccounts.Count > 0 && customer != null)
+            if (customer.BankAccounts.Count >= 2 && customer != null)
             {
                 while (true)
                 {
@@ -436,7 +447,7 @@ namespace AwesomeBankSystem
                     else if (string.IsNullOrEmpty(sendFromAcc) || !check)
                     {
                         Console.WriteLine("Kontot kunde inte hittas. Vänligen försök igen om några sekunder.");
-                        Thread.Sleep(5000);
+                        Thread.Sleep(3000);
                     }
                 }
 
@@ -463,7 +474,7 @@ namespace AwesomeBankSystem
 
                     sendTo = customer.BankAccounts.Find(x => x.Name.ToLower() == sendToAcc);
 
-                    if (!string.IsNullOrEmpty(sendToAcc) && sendTo != null)
+                    if (!string.IsNullOrEmpty(sendToAcc) && sendTo != null && sendTo != sendFrom && sendToAcc != "ex")
                     {
                         check = customer.BankAccounts.Contains(sendTo);
 
@@ -475,7 +486,7 @@ namespace AwesomeBankSystem
                         else
                         {
                             Console.WriteLine("Kontot kunde inte hittas. Vänligen försök igen.");
-                            Thread.Sleep(5000);
+                            Thread.Sleep(3000);
                         }
                     }
 
@@ -495,14 +506,30 @@ namespace AwesomeBankSystem
                     {
                         break;
                     }
+                    else
+                    {
+                        Console.WriteLine("Du har inte tillräckligt med pengar i kontot.");
+                        success = false;
+                        Thread.Sleep(2000);
+                        break;
+                    }
                 }
 
-                Send(sendFrom, sendTo, amountToSend, customer.UserName, customer.UserName);
+                if (success)
+                {
+                    Send(sendFrom, sendTo, amountToSend, customer.UserName, customer.UserName);
+                }                
             }
 
-            else
+            else if (customer.BankAccounts.Count == 0)
             {
                 Console.WriteLine("Du har inte skapat några konton än.");
+            }
+
+            else if (customer.BankAccounts.Count == 1)
+            {
+                Console.Clear();
+                Console.WriteLine("Det har bara ett konto och kan därmed inte föra över pengar just nu.");
             }
         }
 
@@ -532,7 +559,7 @@ namespace AwesomeBankSystem
                     bool check = false;
 
                     Console.Clear();
-
+                    Console.WriteLine("Du äger följande konton: \n");
                     //Printing out all of the current user's accounts
                     foreach (var myAcc in customer.BankAccounts)
                     {
@@ -565,6 +592,7 @@ namespace AwesomeBankSystem
                     }
                 }
 
+                Console.Clear();
                 //Loop until it finds the correct user to send money to.
                 while (true)
                 {
@@ -577,16 +605,16 @@ namespace AwesomeBankSystem
                         if (userList[i].IsAdmin == false && userList[i].UserName != loggedInUser.UserName)
                         {
                             temp = (Customer)userList[i];
-
-                            Console.WriteLine($"\n{temp.UserName} har följande konton:\n");
+                            Console.WriteLine($"\n[{temp.UserName}] har följande konton:\n");
 
                             for (int j = 0; j < temp.BankAccounts.Count; j++)
                             {
-                                Console.WriteLine($"{temp.BankAccounts[j].Name} - {temp.BankAccounts[j].AccountNumber} har {temp.BankAccounts[j].Currency} som valuta.");
+                                Console.WriteLine($"Konto: {temp.BankAccounts[j].Name} - [{temp.BankAccounts[j].AccountNumber}] har {temp.BankAccounts[j].Currency} som valuta.");
                             }
 
                             //Console.WriteLine(customer.BankAccounts[i]);
                         }
+                        Console.WriteLine("-----------------------------------------------");
                     }
 
                     bool check = false;
@@ -607,14 +635,19 @@ namespace AwesomeBankSystem
                         }
                     }
 
-                    else if (customer.UserName == loggedInUser.UserName)
+                    else if (customer != null)
                     {
-                        Console.WriteLine("Du får inte skriva dig själv som mottagare.");
+                        if (customer.UserName == loggedInUser.UserName)
+                        {
+                            Console.WriteLine("Du får inte skriva dig själv som mottagare.");
+                        }                        
                     }
 
                     else if (string.IsNullOrEmpty(sendFromAcc) || !check)
                     {
                         Console.WriteLine("Något blev fel! Vänligen försök igen!");
+                        Thread.Sleep(2000);
+                        Console.Clear();
                     }
                 }
 
