@@ -153,8 +153,12 @@ namespace AwesomeBankSystem
                         break;
                     default:
                         Console.WriteLine("Ogiltigt val. Försök igen.");
+                        Console.ReadKey();
                         break;
                 }
+
+                Console.WriteLine("Tryck ENTER för att fortsätta...");
+                Console.ReadKey();
             }
         }
 
@@ -212,10 +216,6 @@ namespace AwesomeBankSystem
             {
                 Console.WriteLine($"Kontonamn: {bankAccount.Name} Kontonummer: {bankAccount.AccountNumber} Belopp: {bankAccount.Amount} {bankAccount.Currency}");
             }
-            Console.WriteLine("Tryck ENTER för att fortsätta...");
-            Console.ReadKey();
-            Console.Clear();
-
         }
 
         /// <summary>
@@ -412,6 +412,7 @@ namespace AwesomeBankSystem
             double amountToSend;
             BankAccount sendTo;
             BankAccount sendFrom;
+            bool success = true;
 
             //Will only work if user exists and has a bank account
             if (customer.BankAccounts.Count >= 2 && customer != null)
@@ -505,9 +506,19 @@ namespace AwesomeBankSystem
                     {
                         break;
                     }
+                    else
+                    {
+                        Console.WriteLine("Du har inte tillräckligt med pengar i kontot.");
+                        success = false;
+                        Thread.Sleep(2000);
+                        break;
+                    }
                 }
 
-                Send(sendFrom, sendTo, amountToSend, customer.UserName, customer.UserName);
+                if (success)
+                {
+                    Send(sendFrom, sendTo, amountToSend, customer.UserName, customer.UserName);
+                }                
             }
 
             else if (customer.BankAccounts.Count == 0)
@@ -519,7 +530,6 @@ namespace AwesomeBankSystem
             {
                 Console.Clear();
                 Console.WriteLine("Det har bara ett konto och kan därmed inte föra över pengar just nu.");
-                Thread.Sleep(3000);
             }
         }
 
@@ -595,8 +605,7 @@ namespace AwesomeBankSystem
                         if (userList[i].IsAdmin == false && userList[i].UserName != loggedInUser.UserName)
                         {
                             temp = (Customer)userList[i];
-
-                            Console.WriteLine($"\n{temp.UserName} har följande konton:\n");
+                            Console.WriteLine($"\n[{temp.UserName}] har följande konton:\n");
 
                             for (int j = 0; j < temp.BankAccounts.Count; j++)
                             {
@@ -605,6 +614,7 @@ namespace AwesomeBankSystem
 
                             //Console.WriteLine(customer.BankAccounts[i]);
                         }
+                        Console.WriteLine("-----------------------------------------------");
                     }
 
                     bool check = false;
