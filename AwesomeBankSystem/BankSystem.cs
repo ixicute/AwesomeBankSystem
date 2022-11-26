@@ -13,8 +13,8 @@ namespace AwesomeBankSystem
         Customer customer;
         Customer transactionFrom;
         Customer transactionTo;
+        Admin admin;
         List<User> userList = new List<User>();
-
         CurrencyExchange changeRate = new CurrencyExchange();
 
         //user logging in: menu
@@ -76,13 +76,17 @@ namespace AwesomeBankSystem
         public void AdminMenu()
         {
             Console.Clear();
+            admin = (Admin)userList.Find(x => x.UserName == loggedInUser.UserName);
             Console.WriteLine(FiggleFonts.Kban.Render("Awesome Bank"));
             Console.WriteLine("Admin meny");
             string command = "";
             while (!command.ToLower().Equals("exit"))
             {
                 Console.WriteLine("Skriv in vilket kommando du vill utföra.\n");
-                Console.WriteLine("Tillgängliga kommandon:\nLK = Lägger till ny kund, SK = Skriva ut kundlista, Exit = Avsluta programmet");
+                Console.WriteLine("LK = Lägger till ny kund\n" +
+                                  "SK = Skriva ut kundlista\n" +
+                                  "VK = Ändra växelkurs" +
+                                  "Exit = Avsluta programmet");
                 command = Console.ReadLine();
                 switch (command.ToLower())
                 {
@@ -91,6 +95,9 @@ namespace AwesomeBankSystem
                         break;
                     case "sk":
                         PrintAllCustomers();
+                        break;
+                    case "vk":
+                        changeRate.ChangeCurrencyExchange(admin);
                         break;
                     case "exit":
                         SignOut();
