@@ -6,7 +6,7 @@
 User class determines if user is admin och normal customer depending on name and password.
 
 	  -Admin, 
-	  Admin class inherits from User class. Admin class can add new users, both customers and admin staff. 
+	  Admin class inherits from User class. Admin class can add new users. 
 	  -Customer, 
 	  Customer class inherits from User class. This class contains different lists to handle bank accounts and transactions 
       between accounts. 
