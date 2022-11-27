@@ -153,12 +153,14 @@ namespace AwesomeBankSystem
                         break;
                     default:
                         Console.WriteLine("Ogiltigt val. Försök igen.");
-                        Console.ReadKey();
                         break;
                 }
 
-                Console.WriteLine("Tryck ENTER för att fortsätta...");
-                Console.ReadKey();
+                if (command != "ex")
+                {
+                    Console.WriteLine("Tryck ENTER för att fortsätta...");
+                    Console.ReadKey();
+                }                
             }
         }
 
@@ -198,7 +200,6 @@ namespace AwesomeBankSystem
 
         public void SignOut()
         {
-            //Todo
             Console.Clear();
             Console.WriteLine("\nDu loggas nu ut från Awesome Bank. Välkommen åter!");
             Thread.Sleep(2000);
@@ -213,8 +214,8 @@ namespace AwesomeBankSystem
                 Console.WriteLine("Du har för tillfället inga bankkonton, vänligen skapa ett nytt konto genom att ange bokstäverna OB.\n");
             }
             foreach (BankAccount bankAccount in loggedInCustomer.BankAccounts)
-            {
-                Console.WriteLine($"Kontonamn: {bankAccount.Name} Kontonummer: {bankAccount.AccountNumber} Belopp: {bankAccount.Amount} {bankAccount.Currency}");
+            {                
+                Console.WriteLine($"Kontonamn: {bankAccount.Name} Kontonummer: {bankAccount.AccountNumber} Belopp: {Math.Round(bankAccount.Amount, 2)} {bankAccount.Currency}");
             }
         }
 
@@ -682,7 +683,7 @@ namespace AwesomeBankSystem
                     else if (string.IsNullOrEmpty(sendFromAcc) || !check)
                     {
                         Console.WriteLine("Fel värde. Du får försöka igen om några sekunder.");
-                        Thread.Sleep(5000);
+                        Thread.Sleep(2000);
                     }
                 }
 
@@ -741,7 +742,7 @@ namespace AwesomeBankSystem
                         {
                             customer = (Customer)userList.Find(x => x.UserName == transactionFrom.UserName);
                             customer.BankAccounts[j].Amount -= amount;
-                            Console.WriteLine($"Nytt belopp är: {customer.BankAccounts[j].Amount} {customer.BankAccounts[j].Currency}");
+                            Console.WriteLine($"Nytt belopp är: {Math.Round(customer.BankAccounts[j].Amount, 2)} {customer.BankAccounts[j].Currency}");
 
                             customer.TransactionsSent.Add(new TransactionsSent(from, to, amount, receiverName));
                         }
@@ -765,7 +766,7 @@ namespace AwesomeBankSystem
                             customer = (Customer)userList.Find(x => x.UserName == transactionTo.UserName);
                             customer.BankAccounts[j].Amount += currencyChecked;
 
-                            Console.WriteLine($"{amount} {from.Currency} har nu förts över till {userList[i].UserName}s {to.Name}.\n");
+                            Console.WriteLine($"{Math.Round(amount, 2)} {from.Currency} har nu förts över till {userList[i].UserName}s {to.Name}.\n");
 
                             customer.TransactionsReceived.Add(new TransactionsReceived(from, to, amount, senderName));
                         }
@@ -867,7 +868,7 @@ namespace AwesomeBankSystem
                 {
                     Console.WriteLine("Din kontolista:");
 
-                    foreach (var item in customer.BankAccounts)
+                    foreach (var item in allAcc.BankAccounts)
                     {
                         Console.WriteLine($"Konto: [{item.Name} - {item.AccountNumber}, belopp: {item.Amount} {item.Currency}]");
                     }
@@ -876,11 +877,11 @@ namespace AwesomeBankSystem
                     inputAcc = Console.ReadLine().ToLower();
 
                     //Check to see if account exists and save in instance
-                    newLoanToAcc = customer.BankAccounts.Find(x => x.Name.ToLower() == inputAcc);
+                    newLoanToAcc = allAcc.BankAccounts.Find(x => x.Name.ToLower() == inputAcc);
 
                     if (!string.IsNullOrEmpty(inputAcc) && newLoanToAcc != null)
                     {
-                        check = customer.BankAccounts.Contains(newLoanToAcc);
+                        check = allAcc.BankAccounts.Contains(newLoanToAcc);
 
                         if (check)
                         {
