@@ -75,13 +75,14 @@ namespace AwesomeBankSystem
 
         public void AdminMenu()
         {
-            Console.Clear();
             admin = (Admin)userList.Find(x => x.UserName == loggedInUser.UserName);
-            Console.WriteLine(FiggleFonts.Kban.Render("Awesome Bank"));
-            Console.WriteLine("Admin meny");
             string command = "";
             while (!command.ToLower().Equals("exit"))
             {
+                Console.Clear();
+                Console.WriteLine(FiggleFonts.Kban.Render("Awesome Bank"));
+                Console.WriteLine("Admin meny");
+
                 Console.WriteLine("Skriv in vilket kommando du vill utföra.\n");
                 Console.WriteLine("LK = Lägger till ny kund\n" +
                                   "SK = Skriva ut kundlista\n" +
@@ -97,6 +98,7 @@ namespace AwesomeBankSystem
                         PrintAllCustomers();
                         break;
                     case "vk":
+                        Console.Clear();
                         changeRate.ChangeCurrencyExchange(admin);
                         break;
                     case "exit":
@@ -105,6 +107,12 @@ namespace AwesomeBankSystem
                     default:
                         Console.WriteLine("Otillgängligt kommando");
                         break;
+                }
+
+                if (command != "exit")
+                {
+                    Console.WriteLine("Tryck ENTER för att fortsätta...");
+                    Console.ReadKey();
                 }
             }
         }

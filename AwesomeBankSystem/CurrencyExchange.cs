@@ -48,13 +48,13 @@ namespace AwesomeBankSystem
         {
             double userInput = 0;
             bool check;
-            Console.WriteLine("Current exchange rates are: ");
+            Console.WriteLine("Nuvarande priser för växlekursen: ");
             Console.WriteLine($"SEK to USD:  {sekToUSD}\n" +
                               $"SEK to EURO: {sekToEURO}\n" +
                               $"EURO to SEK: {euroToSEK}\n" +
                               $"USD to SEK:  {usdToSEK}");
 
-            Console.WriteLine("Enter the new exchange rate for: ");
+            Console.WriteLine("Mata in ny växelkulrs för: ");
             Console.WriteLine("SEK to USD: ");
             check = double.TryParse(Console.ReadLine(), out userInput);
             if (check)
@@ -83,14 +83,12 @@ namespace AwesomeBankSystem
                 usdToSEK = userInput;
             }
             Console.Clear();
-            Console.WriteLine("Done!" +
-                              "Exchange rates have been updated to: ");
+            Console.WriteLine("Ändringar sparades!" +
+                              "Växelkursen har uppdaterats till: ");
             Console.WriteLine($"SEK to USD:  {sekToUSD}\n" +
                               $"SEK to EURO: {sekToEURO}\n" +
                               $"EURO to SEK: {euroToSEK}\n" +
                               $"USD to SEK:  {usdToSEK}");
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
         }
 
         public double ExchangeCurrency(BankAccount from, BankAccount to, double amount)
