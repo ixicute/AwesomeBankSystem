@@ -22,7 +22,7 @@ namespace AwesomeBankSystem
         {
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine(FiggleFonts.Kban.Render("Awesome Bank"));
-            InitiateUsers();
+
             int check = 0;
             Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("Välkommen till Awesome Bank!");

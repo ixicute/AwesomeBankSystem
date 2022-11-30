@@ -5,7 +5,7 @@
         static void Main(string[] args)
         {
             BankSystem bank = new BankSystem();
-
+            bank.InitiateUsers();
             bank.Run();
         }
     }
