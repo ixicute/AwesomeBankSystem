@@ -103,6 +103,8 @@ namespace AwesomeBankSystem
                         break;
                     case "exit":
                         SignOut();
+                        Run();
+                        command = "kör om";
                         break;
                     default:
                         Console.WriteLine("Otillgängligt kommando");
@@ -158,6 +160,8 @@ namespace AwesomeBankSystem
                         break;
                     case "ex":
                         SignOut();
+                        Run();
+                        command = "kör om";
                         break;
                     default:
                         Console.WriteLine("Ogiltigt val. Försök igen.");
@@ -211,6 +215,7 @@ namespace AwesomeBankSystem
             Console.Clear();
             Console.WriteLine("\nDu loggas nu ut från Awesome Bank. Välkommen åter!");
             Thread.Sleep(2000);
+            Console.Clear();
         }
 
         public void PrintBankAccounts()
